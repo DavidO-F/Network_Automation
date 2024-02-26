@@ -1,0 +1,5 @@
+"/ip address print"
+"/ip service print"
+"/interface print"
+"/certificate print"
+"/ip dhcp-client print"

@@ -1,0 +1,4 @@
+"/system identity set name=ISP-PE-HQ"
+"/ip/address add address=172.16.1.2/30 interface=ether2 comment='Connection to HQ-MKT'"
+"/ip/address add address=172.16.1.5/30 interface=ether3 comment='Connection to ISP-PE-BH'"
+"/ip/route add dst-address=0.0.0.0/0 gateway=172.16.1.6 check-gateway=ping comment='Default route to any destination'"

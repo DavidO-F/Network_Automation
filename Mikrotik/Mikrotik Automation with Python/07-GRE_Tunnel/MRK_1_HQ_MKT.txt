@@ -1,0 +1,7 @@
+"/system identity set name=HQ-MKT"
+/ip address add address=192.168.2.1/24 interface=ether2 comment='HQ LAN interface Gateway IP Address'"
+"/ip address add address=172.16.1.1/30 interface=ether3 comment='HQ WAN interface IP Address""
+"/interface gre add name=HQ-GRE-Interface local-address=172.16.1.1 remote-address=172.16.1.10 comment='GRE logical connection to Branch'"
+"/ip address add add=192.168.10.2/30 int=HQ-GRE-Interface comm='GRE Interface IP Address'"
+"/ip route add dst=192.168.1.0/24 gat=192.168.10.1 com='GRE route' check-gateway=ping"
+"/ip route add gateway=172.16.1.2 check-gateway=ping dst-address=0.0.0.0/0 comment='Internet Route'"
