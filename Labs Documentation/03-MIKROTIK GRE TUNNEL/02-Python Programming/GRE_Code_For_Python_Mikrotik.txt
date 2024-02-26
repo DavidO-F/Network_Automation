@@ -1,0 +1,32 @@
+Mikrotk1-Configuration
+"/system identity set name=HQ-MKT"
+"/ip address add address=192.168.2.1/24 interface=ether2 comment='HQ LAN interface Gateway IP Address'"
+"/ip address add address=172.16.1.1/30 interface=ether3 comment='HQ WAN interface IP Address""
+"/interface gre add name=HQ-GRE-Interface local-address=172.16.1.1 remote-address=172.16.1.10 comment='GRE logical connection to Branch'"
+"/ip address add add=192.168.10.2/30 int=HQ-GRE-Interface comm='GRE Interface IP Address'"
+"/ip route add dst=192.168.1.0/24 gat=192.168.10.1 com='GRE route' check-gateway=ping"
+"/ip route add gateway=172.16.1.2 check-gateway=ping dst-address=0.0.0.0/0 comment='Internet Route'"
+
+
+Mikrotik 4 Configurations
+system identity set name=BH-MKT
+"/ip/address add address=192.168.1.1/24 interface=ether3 comment='Branch LAN Interface Gateway IP Address'"
+"/ip/address add address=172.16.1.10/30 interface=ether2 comment='Branch WAN Interface IP Address'"
+"/ip/route add gateway=172.16.1.9 check-gateway=ping dst-address=0.0.0.0/0 comment='Internet Route'"
+"/interface/gre add name=BH-GRE-Interface local-address=172.16.1.10 remote-address=172.16.1.1 comment='GRE logical connection to HQ'"
+"/ip/address add address=192.168.10.1/30 interface=BH-GRE-Interface comment='GRE Interface IP Address'"
+"/ip/route add dst=192.168.2.0/24 gat=192.168.10.2 check-gateway=ping com='GRE route'"
+
+
+Mikrotik 2
+"/system identity set name=ISP-PE-HQ"
+"/ip/address add address=172.16.1.2/30 interface=ether2 comment='Connection to HQ-MKT'"
+"/ip/address add address=172.16.1.5/30 interface=ether3 comment='Connection to ISP-PE-BH'"
+"/ip/route add dst-address=0.0.0.0/0 gateway=172.16.1.6 check-gateway=ping comment='Default route to any destination'"
+
+
+Mikrotik 3
+"/system identity set name=ISP-PE-BH"
+"/ip address add address=172.16.1.6/30 interface=ether3 comment='Connection to ISP-PE-HQ'"
+"/ip address add address=172.16.1.9/30 interface=ether2 comment='Connection to BH-MKT'"
+"/ip/route add dst-address=0.0.0.0/0 gateway=172.16.1.5 check-gateway=ping comment='Default route to any destination'"

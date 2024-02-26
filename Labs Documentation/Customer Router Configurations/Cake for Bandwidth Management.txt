@@ -1,0 +1,9 @@
+/queue type
+add cake-atm=ptm cake-diffserv=besteffort cake-mpu=88 cake-overhead=40 kind=cake name=cake-defaults
+add cake-ack-filter=filter cake-atm=ptm cake-bandwidth=30.0Mbps cake-diffserv=besteffort cake-mpu=88 cake-nat=yes cake-overhead=40 kind=cake name=cake-upload
+add cake-atm=ptm cake-bandwidth=30.0Mbps cake-diffserv=besteffort cake-mpu=88 cake-nat=yes cake-overhead=40 cake-wash=yes kind=cake name=cake-download
+
+/queue simple
+add bucket-size=0.001/0.001 name=CAKE-QOS queue=cake-download/cake-upload target=ether1-ISP total-queue=cake-defaults
+
+website: waveform.com/tools/nufferbloat

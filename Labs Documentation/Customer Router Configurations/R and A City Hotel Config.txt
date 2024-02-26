@@ -1,0 +1,61 @@
+Mikrotik Router Configuration for R and A
+
+Router Configuration:
+Command: export terse
+
+# model = RB951G-2HnD
+# serial number = C5620C0DDA10
+
+/interface bridge add comment=LAN fast-forward=no name=bridge1
+/interface wireless set [ find default-name=wlan1 ] name=wlan2 ssid=MikroTik
+/interface ethernet set [ find default-name=ether1 ] comment=Bridged_To_Extension mac-address=B8:69:F4:31:AA:95 speed=100Mbps
+/interface ethernet set [ find default-name=ether2 ] auto-negotiation=no mac-address=B8:69:F4:31:AA:96 speed=100Mbps
+/interface ethernet set [ find default-name=ether3 ] auto-negotiation=no mac-address=B8:69:F4:31:AA:97 name=ether3-WAN speed=100Mbps
+/interface ethernet set [ find default-name=ether4 ] auto-negotiation=no mac-address=B8:69:F4:31:AA:98 speed=100Mbps
+/interface ethernet set [ find default-name=ether5 ] mac-address=B8:69:F4:31:AA:99 speed=100Mbps
+
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=profile
+1 supplicant-identity="" wpa-pre-shared-key=randahotel wpa2-pre-shared-key=randahotel
+
+/ip pool add name=dhcp_pool0 ranges=192.168.10.20-192.168.10.254
+/ip dhcp-server add address-pool=dhcp_pool0 disabled=no interface=bridge1 name=dhcp1
+
+/queue simple add max-limit=10137k/10137k name="50% upgrade-7pm-7am and weekends" target=ether3-WAN time=7h-19h,mon,tue,wed,thu,fri
+
+/user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
+
+/interface bridge port add bridge=bridge1 interface=*1
+/interface bridge port add bridge=bridge1 interface=ether4
+/interface bridge port add bridge=bridge1 interface=ether5
+/interface bridge port add bridge=bridge1 interface=ether1
+
+/ip neighbor discovery-settings set discover-interface-list=!dynamic
+/ip address add address=196.1.182.198/30 comment=WAN interface=ether3-WAN network=196.1.182.196
+/ip address add address=192.168.10.1/24 comment=LAN interface=bridge1 network=192.168.10.0
+/ip address add address=192.168.1.2/24 comment=PTP-Ubiquiti-IP interface=ether1 network=192.168.1.0
+
+/ip dhcp-server network add address=192.168.10.0/24 dns-server=154.65.7.201,8.8.8.8,4.2.2.2 gateway=192.168.10.1
+/ip dns set servers=154.65.7.201,8.8.8.8
+/ip firewall mangle add action=change-mss chain=forward new-mss=1300 out-interface=ether2 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1301-65535
+/ip firewall nat add action=masquerade chain=srcnat out-interface=ether3-WAN
+/ip firewall nat add action=dst-nat chain=dstnat comment="Port-forwarding to Ubiquiti-PTP" dst-port=80 in-interface=ether3-WAN log=yes protocol=tcp to-addresses=192.168.1.21 to-ports=80
+/ip route add distance=1 gateway=196.1.182.197
+
+/ip service set telnet port=1523
+/ip service set ftp port=1521
+/ip service set www port=1580
+/ip service set ssh port=1522
+/ip service set api disabled=yes
+/ip service set winbox port=1520
+/ip service set api-ssl disabled=yes
+
+/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
+/snmp set contact=admin enabled=yes location="R_AND_A HOTEL" trap-version=2
+/system clock set time-zone-name=Africa/Lagos
+/system identity set name="R-AND-A===HOTEL"
+/system ntp client set enabled=yes primary-ntp=196.10.54.57 secondary-ntp=196.5.88.35
+/tool graphing interface add interface=ether2
+
+
+Command: export verbose

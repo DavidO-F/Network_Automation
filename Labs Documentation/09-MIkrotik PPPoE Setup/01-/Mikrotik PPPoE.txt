@@ -1,0 +1,18 @@
+How to Configure Mikrotik PPPoE with Queue Bandwidth
+
+
+# software id
+/interface ethernet set [ find default-name=ether1 ] comment="Connection to ISP" name=ether1-ISP
+/interface ethernet set [ find default-name=ether2 ] comment="PPPoE Server Interface LAN" name=ether2-PPPoE
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/ip pool add name=PPPoE-Client ranges=192.168.255.10-192.168.255.254
+/port set 0 name=serial0
+/queue simple add max-limit=20M/20M name="Total PPPoE Bandwidth" target=ether2-PPPoE
+/ppp profile add dns-server=8.8.8.8,8.8.4.4 local-address=192.168.255.1 name=5MB-Profile parent-queue="Total PPPoE Bandwidth" rate-limit=5M/5M remote-address=PPPoE-Client use-encryption=yes
+/interface pppoe-server server add default-profile=5MB-Profile disabled=no interface=ether2-PPPoE max-sessions=3 one-session-per-host=yes service-name=PPPoE-Service1
+/ip address add address=192.168.255.1/24 comment="LAN IP Address Connection to win computer" interface=ether2-PPPoE network=192.168.255.0
+/ip dhcp-client add interface=ether1-ISP
+/ip dns set servers=8.8.8.8,8.8.4.4
+/ip firewall nat add action=masquerade chain=srcnat out-interface=ether1-ISP src-address=192.168.255.0/24
+/ppp secret add name=user1 service=pppoe
+/system note set show-at-login=no

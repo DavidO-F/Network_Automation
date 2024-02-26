@@ -1,0 +1,75 @@
+ #####################################################
+| ### This is a property of eStream Networks Ltd.   ###
+| ### Unauthorised access on this network is highly ###
+| ### prohibited.                                   ###
+| ###                                               ###
+| ###     All intruders should keep off.            ###
+| ###                                               ###
+| ###             eStream Networks Ltd              ###
+| ###             Core Networks Unit                ###
+| ###             signed: Network Management        ###
+| #####################################################
+
+
+
+ping vrf STERLING-BANK_VPN_L3_VRF
+
+eStream_LAG_LGL_PE#show vrf STERLING-BANK_VPN_L3_VRF
+  Name                             Default RD            Protocols   Interfaces
+  STERLING-BANK_VPN_L3_VRF         64600:532             ipv4        Lo12
+                                                                     Lo22
+                                                                     Lo32
+                                                                     Lo62
+                                                                     Lo65
+                                                                     Lo92
+                                                                     Tu12
+                                                                     Tu22
+                                                                     Tu32
+                                                                     Tu40
+                                                                     Tu63
+                                                                     Tu64
+                                                                     Tu65
+                                                                     Tu66
+                                                                     Tu68
+                                                                     Tu69
+                                                                     Tu70
+
+                                                                     Tu71
+                                                                     Tu76
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/2.17
+
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/2.2198
+                                                                     
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/3.422
+                                                                     
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/3.550
+                                                                     
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/3.985
+                                                                     
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/3.995
+                                                                     
+show vrf STERLING-BANK_VPN_L3_VRF Gi0/0/3.1198
+                                                                     
+show interface Gi0/0/3.1199
+                                                                     Gi0/0/3.1243
+                                                                     Gi0/0/3.1354
+                                                                     Gi0/0/3.1355
+                                                                     Gi0/0/3.1356
+                                                                     Gi0/0/3.1364
+                                                                     Gi0/0/3.1381
+                                                                     Gi0/0/3.1814
+                                                                     Gi0/0/3.1815
+                                                                     Gi0/0/3.1816
+                                                                     Gi0/0/3.1817
+                                                                     Gi0/0/3.1818
+                                                                     Gi0/0/3.1819
+                                                                     Gi0/0/3.1820
+                                                                     Gi0/0/3.2237
+                                                                     Gi0/0/3.1010
+                                                                     Gi0/0/3.1248
+
+
+
+172.20.25.80
+
+172.19.7.25

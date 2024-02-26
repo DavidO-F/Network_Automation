@@ -1,0 +1,20 @@
+﻿[admin@GTCO_BR_RT] > export terse
+# 2024-01-11 22:16:22 by RouterOS 7.11.2
+# software id = 
+#
+/interface gre add comment="GRE interface from Branch to HQ" local-address=172.16.100.2 name=gre_int_BR-HQ remote-address=172.16.1.2
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/ip pool add name=dhcp_pool0 ranges=10.10.10.2-10.10.10.254
+/ip dhcp-server add address-pool=dhcp_pool0 interface=ether2 name=dhcp1
+/port set 0 name=serial0
+/ip address add address=172.16.100.2/30 comment="WAN IP address" interface=ether1 network=172.16.100.0
+/ip address add address=10.10.10.1/24 comment="LAN IP address" interface=ether2 network=10.10.10.0
+/ip address add address=192.168.100.2/30 comment="IP address for the Branch GRE Tunnel to HQ" interface=gre_int_BR-HQ network=192.168.100.0
+/ip dhcp-client add interface=ether1
+/ip dhcp-server network add address=10.10.10.0/24 gateway=10.10.10.1
+/ip route add check-gateway=ping comment="Route to the HQ WAN" dst-address=0.0.0.0/0 gateway=172.16.100.1
+/ip route add check-gateway=ping comment="Route to the HQ LAN" disabled=yes dst-address=192.168.1.0/24 gateway=172.16.100.1
+/ip route add comment="PTP GRE tunnel from branch to hq" disabled=yes dst-address=192.168.1.0/24 gateway=192.168.100.1
+/ip route add check-gateway=ping comment=Tunnel-Route-to-HQ dst-address=192.168.1.0/24 gateway=192.168.100.1
+/system identity set name=GTCO_BR_RT
+/system note set show-at-login=no

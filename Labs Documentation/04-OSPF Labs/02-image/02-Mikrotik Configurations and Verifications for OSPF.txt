@@ -1,0 +1,1395 @@
+
+Basic OSPF Configuration on Mikrotik RouterOSv7
+
+
+Mikrotik-3
+/system/identity> set name=MKT-3
+
+/ip/address> add address=10.10.13.2/24 interface=ether3 comment="Connection to MKT-1"
+/ip/address> print
+                                              
+Flags: D - DYNAMIC    
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.143/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.13.2/24       10.10.13.0     ether3 
+  
+/ip/address> add address=10.10.23.2/30 interface=ether4 comment="Connection to MKT-2"      
+/ip/address> print
+
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.143/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.13.2/24       10.10.13.0     ether3   
+;;; Connection to MKT-2
+2   10.10.23.2/30       10.10.23.0     ether4
+   
+/ip/address> edit 1 address 
+/ip/address> pr            
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.143/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.13.2/30       10.10.13.0     ether3   
+;;; Connection to MKT-2
+2   10.10.23.2/30       10.10.23.0     ether4 
+
+/ip/address> add address=192.168.30.1/24 interface=ether2 comment="Connection to LAN"                
+/ip/address> pr
+
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.143/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.13.2/30       10.10.13.0     ether3   
+;;; Connection to MKT-2
+2   10.10.23.2/30       10.10.23.0     ether4   
+;;; Connection to LAN
+3   192.168.30.1/24     192.168.30.0   ether2
+  
+
+/ping 192.168.30.1
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 192.168.30.1                               56  64 1ms295us  
+    1 192.168.30.1                               56  64 81us      
+    2 192.168.30.1                               56  64 69us      
+    3 192.168.30.1                               56  64 55us      
+    sent=4 received=4 packet-loss=0% min-rtt=55us avg-rtt=375us 
+   max-rtt=1ms295us 
+
+[admin@MKT-3] > ping 192.168.30.2
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 192.168.30.2                               56  64 2ms672us  
+    1 192.168.30.2                               56  64 1ms533us  
+    sent=2 received=2 packet-loss=0% min-rtt=1ms533us avg-rtt=2ms102us 
+   max-rtt=2ms672us 
+
+[admin@MKT-3] > ping 10.10.13.2  
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.13.2                                 56  64 136us     
+    1 10.10.13.2                                 56  64 139us     
+    2 10.10.13.2                                 56  64 48us      
+    sent=3 received=3 packet-loss=0% min-rtt=48us avg-rtt=107us 
+   max-rtt=139us 
+
+/ping 10.10.13.1
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.13.1                                 56  64 3ms77us   
+    1 10.10.13.1                                 56  64 4ms217us  
+    2 10.10.13.1                                 56  64 1ms772us  
+    sent=3 received=3 packet-loss=0% min-rtt=1ms772us avg-rtt=3ms22us 
+   max-rtt=4ms217us 
+
+/ping 10.10.23.1 
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.23.1                                 56  64 8ms876us  
+    1 10.10.23.1                                 56  64 1ms741us  
+    2 10.10.23.1                                 56  64 1ms864us  
+    sent=3 received=3 packet-loss=0% min-rtt=1ms741us avg-rtt=4ms160us 
+   max-rtt=8ms876us 
+
+[admin@MKT-3] > ping 10.10.23.2
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.23.2                                 56  64 103us     
+    1 10.10.23.2                                 56  64 59us      
+    2 10.10.23.2                                 56  64 83us      
+    3 10.10.23.2                                 56  64 73us      
+    4 10.10.23.2                                 56  64 87us      
+    sent=5 received=5 packet-loss=0% min-rtt=59us avg-rtt=81us 
+   max-rtt=103us 
+
+
+dmin@MKT-3] > ip dhcp-c
+[admin@MKT-3] /ip/dhcp-client> pr
+Columns: INTERFACE, USE-PEER-DNS, ADD-DEFAULT-ROUTE, STATUS, ADDRESS
+# INTERFACE  USE-PEER-DNS  ADD-DEFAULT-ROUTE  STATUS  ADDRESS           
+"Bridge interface named loopback0"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-c quit C-o save&quit C-u undo C-k cut line C-y paste F5 repaint
+0 ether1     yes           yes                bound   192.168.193.143/24
+[admin@MKT-3] /ip/dhcp-client> dis 0
+[admin@MKT-3] /ip/dhcp-client> pr
+Flags: X - DISABLED, I - INVALID
+Columns: INTERFACE, USE-PEER-DNS, ADD-DEFAULT-ROUTE
+#   INTERFACE  USE-PEER-DNS  ADD-DEFAULT-ROUTE
+0 X ether1     yes           yes              
+[admin@MKT-3] /ip/dhcp-client> /
+
+/interface/bridge> add name=loopback0 comment="Bridge interface named loopback0"
+/interface/bridge> pr
+
+Flags: X - disabled, R - running 
+ 0 R ;;; "Bridge interface named loopback0"
+     name="loopback0" mtu=auto actual-mtu=1500 l2mtu=65535 arp=enabled 
+     arp-timeout=auto mac-address=52:12:94:1A:7E:6A protocol-mode=rstp 
+     fast-forward=yes igmp-snooping=no auto-mac=yes ageing-time=5m 
+     priority=0x8000 max-message-age=20s forward-delay=15s 
+     transmit-hold-count=6 vlan-filtering=no dhcp-snooping=no 
+
+/ip/address> add address=3.3.3.3/32 interface=loopback0 comment="IP address for OSFP Loopback interface"
+[admin@MKT-3] /ip/address> pr
+
+Columns: ADDRESS, NETWORK, INTERFACE
+# ADDRESS          NETWORK       INTERFACE
+;;; Connection to MKT-1
+0 10.10.13.2/30    10.10.13.0    ether3   
+;;; Connection to MKT-2
+1 10.10.23.2/30    10.10.23.0    ether4   
+;;; Connection to LAN
+2 192.168.30.1/24  192.168.30.0  ether2   
+;;; IP address for OSFP Loopback interface
+3 3.3.3.3/32       3.3.3.3       loopback0
+
+
+/routing/id> add disabled=no id=3.3.3.3 name=OSPF_ID comment="Router Identity for OSPF routing"
+/routing/id> pr
+Flags: D - DYNAMIC
+Columns: NAME, ID, DYNAMIC-ID, SELECT-DYNAMIC-ID, SELECT-FROM-VRF
+#   NAME     ID       DYNAMIC-ID    SELECT-DYNAMIC-ID  SELECT-FROM-VRF
+0 D main              192.168.30.1  only-vrf           main           
+;;; Router Identity for OSPF routing
+1   OSPF_ID  3.3.3.3
+                                                
+/routing/ospf/instance> add name=ospf-instance-1 originate-default=always router-id=OSPF_ID comment="OSPF instance"
+[admin@MKT-3] /routing/ospf/instance> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF instance
+     name="ospf-instance-1" version=2 vrf=main router-id=OSPF_ID 
+     originate-default=always 
+
+/routing/ospf/area> add instance=ospf-instance-1 name=Backbone comment="Backbone area created"
+/routing/ospf/area> pr
+
+Flags: X - disabled, I - inactive, D - dynamic; T - transit-capable 
+ 0    ;;; Backbone area created
+      name="Backbone" instance=ospf-instance-1 area-id=0.0.0.0 
+      type=default 
+
+/routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether2 networks=192.168.30.0/24 comment="OSPF template for ether2"
+/routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 
+     networks=192.168.30.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678"
+
+/routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether3 networks=10.10.13.0/30 comment="OSPF template for ether3"                 
+/routing/ospf/interface-template> pr                           
+Flags: X - disabled, I - inactive                                             
+0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 
+     networks=192.168.30.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+/routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether4 networks=10.10.23.0/30 comment="OSPF template for ether4"   
+/routing/ospf/interface-template> pr                           
+Flags: X - disabled, I - inactive                                             
+0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 
+     networks=192.168.30.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 networks=10.10.23.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678"
+
+/routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 interfaces=loopback0 networks=3.3.3.3/32 comment="OSPF template for loopback0" passive
+/routing/ospf/interface-template> pr
+                          
+Flags: X - disabled, I - inactive                                             
+0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 
+     networks=192.168.30.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 networks=10.10.23.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 3   ;;; OSPF template for loopback0
+     area=Backbone interfaces=loopback0 instance-id=0 networks=3.3.3.3/32 
+     type=broadcast retransmit-interval=5s transmit-delay=1s 
+     hello-interval=10s dead-interval=40s priority=128 cost=1 passive 
+     auth=md5 auth-key="12345678"
+
+/routing/ospf/interface-template> ..
+/routing/ospf> neighbor/
+/routing/ospf/neighbor> pr
+Flags: V - virtual; D - dynamic 
+ 0  D instance=ospf-instance-1 area=Backbone address=10.10.13.1 
+      router-id=1.1.1.1 state="Full" state-changes=5 adjacency=3m56s 
+      timeout=34s 
+
+ 1  D instance=ospf-instance-1 area=Backbone address=10.10.23.1 
+      router-id=2.2.2.2 state="Full" state-changes=4 adjacency=3m20s 
+      timeout=30s 
+
+/routing/ospf/neighbor> /ip rout pr
+Flags: D - DYNAMIC; A - ACTIVE; c - CONNECT, o - OSPF; + - ECMP
+Columns: DST-ADDRESS, GATEWAY, DISTANCE
+     DST-ADDRESS      GATEWAY            DISTANCE
+DAo+ 0.0.0.0/0        10.10.23.1%ether4       110
+DAo+ 0.0.0.0/0        10.10.13.1%ether3       110
+DAo  1.1.1.1/32       10.10.13.1%ether3       110
+DAo  2.2.2.2/32       10.10.23.1%ether4       110
+DAc  3.3.3.3/32       loopback0                 0
+DAo+ 10.10.12.0/30    10.10.23.1%ether4       110
+DAo+ 10.10.12.0/30    10.10.13.1%ether3       110
+DAc  10.10.13.0/30    ether3                    0
+DAc  10.10.23.0/30    ether4                    0
+DAo  192.168.10.0/24  10.10.13.1%ether3       110
+DAo  192.168.20.0/24  10.10.23.1%ether4       110
+DAc  192.168.30.0/24  ether2                    0
+[admin@MKT-3] /routing/ospf/neighbor>
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mikrotik -2
+
+[admin@MikroTik] /ip/address> pr
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.140/24  192.168.193.0  ether1
+  
+/system/identity/
+set name=MKT-2
+
+/ip/address> add address=10.10.12.2/30 interface=ether2 comment="Connection to MKT-1"
+/ip/address> pr
+
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.140/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.12.2/30       10.10.12.0     ether2
+  
+/ip/address add address=10.10.23.1/30 interface=ether4 comment="Connection to MKT-3"    
+/ip/address> pr
+
+Flags: D - DYNAMIC
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.140/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.12.2/30       10.10.12.0     ether2   
+;;; Connection to MKT-3
+2   10.10.23.1/30       10.10.23.0     ether4
+  
+/ip/address> add address=192.168.20.1/24 interface=ether3 comment="Connection to LAN"                  
+/ip/address> pr                                                
+
+Flags: D - DYNAMIC    
+Columns: ADDRESS, NETWORK, INTERFACE
+#   ADDRESS             NETWORK        INTERFACE
+0 D 192.168.193.140/24  192.168.193.0  ether1   
+;;; Connection to MKT-1
+1   10.10.12.2/30       10.10.12.0     ether2   
+;;; Connection to MKT-3
+2   10.10.23.1/30       10.10.23.0     ether4   
+;;; Connection to LAN
+3   192.168.20.1/24     192.168.20.0   ether3
+  
+/ip/address> 
+/ping 192.168.20.1
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 192.168.20.1                               56  64 2ms207us  
+    1 192.168.20.1                               56  64 53us      
+    2 192.168.20.1                               56  64 956us     
+    3 192.168.20.1                               56  64 47us      
+    4 192.168.20.1                               56  64 47us      
+    sent=5 received=5 packet-loss=0% min-rtt=47us avg-rtt=662us 
+   max-rtt=2ms207us 
+
+[admin@MKT-2] > ping 192.168.20.2
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 192.168.20.2                               56  64 9ms237us  
+    1 192.168.20.2                               56  64 1ms756us  
+    2 192.168.20.2                               56  64 1ms361us  
+    3 192.168.20.2                               56  64 2ms529us  
+    4 192.168.20.2                               56  64 12ms431us 
+    5 192.168.20.2                               56  64 2ms715us  
+    6 192.168.20.2                               56  64 1ms870us  
+    7 192.168.20.2                               56  64 1ms99us   
+
+[admin@MKT-2] > ping 10.10.23.1  
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.23.1                                 56  64 169us     
+    1 10.10.23.1                                 56  64 57us      
+    2 10.10.23.1                                 56  64 220us     
+    sent=3 received=3 packet-loss=0% min-rtt=57us avg-rtt=148us 
+   max-rtt=220us 
+
+[admin@MKT-2] > ping 10.10.23.2
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.23.2                                                   timeout  
+    1 10.10.23.2                                                   timeout  
+    2 10.10.23.2                                                   timeout  
+    3 10.10.23.1                                 84  64 83ms672us  host u...
+    sent=4 received=0 packet-loss=100% 
+
+[admin@MKT-2] > ping 10.10.12.2 
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.12.2                                 56  64 39us      
+    1 10.10.12.2                                 56  64 50us      
+    2 10.10.12.2                                 56  64 71us      
+    sent=3 received=3 packet-loss=0% min-rtt=39us avg-rtt=53us 
+   max-rtt=71us 
+
+[admin@MKT-2] > ping 10.10.12.1
+  SEQ HOST                                     SIZE TTL TIME       STATUS   
+    0 10.10.12.1                                 56  64 4ms672us  
+    1 10.10.12.1                                 56  64 1ms738us  
+    2 10.10.12.1                                 56  64 2ms42us   
+    3 10.10.12.1                                 56  64 2ms38us   
+    4 10.10.12.1                                 56  64 2ms323us  
+    5 10.10.12.1                                 56  64 2ms245us  
+    6 10.10.12.1                                 56  64 2ms134us  
+    sent=7 received=7 packet-loss=0% min-rtt=1ms738us avg-rtt=2ms456us 
+   max-rtt=4ms672us 
+
+/ip/dhcp-client> dis 0
+/ip/dhcp-client> pr
+
+Flags: X - DISABLED, I - INVALID
+Columns: INTERFACE, USE-PEER-DNS, ADD-DEFAULT-ROUTE
+#   INTERFACE  USE-PEER-DNS  ADD-DEFAULT-ROUTE
+0 X ether1     yes           yes 
+            
+[admin@MKT-2] /ip/dhcp-client> /inter/br
+/interface/bridge> add name=loopback0 comment="Bridge interface named loopback0"
+[admin@MKT-2] /interface/bridge> pr
+
+Flags: X - disabled, R - running 
+ 0 R ;;; Bridge interface named loopback0
+     name="loopback0" mtu=auto actual-mtu=1500 l2mtu=65535 arp=enabled 
+     arp-timeout=auto mac-address=6A:B4:DB:6E:0C:2C protocol-mode=rstp 
+     fast-forward=yes igmp-snooping=no auto-mac=yes ageing-time=5m 
+     priority=0x8000 max-message-age=20s forward-delay=15s 
+     transmit-hold-count=6 vlan-filtering=no dhcp-snooping=no
+ 
+/ip/address> add address=2.2.2.2/32 interface=loopback0 comment="IP address for OSFP Loopback interface"
+[admin@MKT-2] /ip/address> pr
+
+Columns: ADDRESS, NETWORK, INTERFACE
+# ADDRESS          NETWORK       INTERFACE
+;;; Connection to MKT-1
+0 10.10.12.2/30    10.10.12.0    ether2   
+;;; Connection to MKT-3
+1 10.10.23.1/30    10.10.23.0    ether4   
+;;; Connection to LAN
+2 192.168.20.1/24  192.168.20.0  ether3   
+;;; IP address for OSFP Loopback interface
+3 2.2.2.2/32       2.2.2.2       loopback0
+
+[admin@MKT-2] /ip/address> /rout id
+[admin@MKT-2] /routing/id> add disabled=no id=2.2.2.2 name=OSPF_ID comment="R
+outer Identity for OSPF routing"
+[admin@MKT-2] /routing/id> pr
+Flags: D - DYNAMIC
+Columns: NAME, ID, DYNAMIC-ID, SELECT-DYNAMIC-ID, SELECT-FROM-VRF
+#   NAME     ID       DYNAMIC-ID    SELECT-DYNAMIC-ID  SELECT-FROM-VRF
+0 D main              192.168.20.1  only-vrf           main           
+;;; Router Identity for OSPF routing
+1   OSPF_ID  2.2.2.2                                                  
+[admin@MKT-2] /routing/id> /routin ospf instance/
+[admin@MKT-2] /routing/ospf/instance> add name=ospf-instance-1 originate-default=
+
+OriginateDefault ::= always | if-installed | never
+
+Press F1 for general console usage help
+[admin@MKT-2] /routing/ospf/instance> add name=ospf-instance-1 originate-default=always rout
+router-id     routing-table   
+[admin@MKT-2] /routing/ospf/instance> add name=ospf-instance-1 originate-default=always router-id=OSPF_ID comment="OSPF instance"
+[admin@MKT-2] /routing/ospf/instance> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF instance
+     name="ospf-instance-1" version=2 vrf=main router-id=OSPF_ID 
+     originate-default=always 
+[admin@MKT-2] /routing/ospf/instance> ..
+[admin@MKT-2] /routing/ospf> are
+[admin@MKT-2] /routing/ospf/area> add instance=ospf-instance-1 name=Backbone 
+comment="Backbone area created"
+[admin@MKT-2] /routing/ospf/area> ..
+[admin@MKT-2] /routing/ospf> interface-t
+[admin@MKT-2] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether2 networks=10.10.12.0/30 comment="OS
+
+[admin@MKT-2] /routing/ospf/interface-template> pr                           Flags: X - disabled, I - inactive                                            
+ 0   area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-2] /routing/ospf/interface-template> remove 0
+[admin@MKT-2] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+[admin@MKT-2] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether2 networks=10.10.12.0/30 comment="OS
+PF template for ether2"
+[admin@MKT-2] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-2] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether3 networks=192.168.20.0/24 comment="OSPF template for ether3"              
+[admin@MKT-2] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 
+     networks=192.168.20.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-2] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether4 networks=10.10.23.0/30 comment="OSPF template for ether4"                 
+[admin@MKT-2] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 
+     networks=192.168.20.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 networks=10.10.23.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-2] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 interfaces=loopback0 networks=2.2.2.2/32 comment="OSPF template for loopback0" passive                        
+[admin@MKT-2] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 
+     networks=192.168.20.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 networks=10.10.23.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 3   ;;; OSPF template for loopback0
+     area=Backbone interfaces=loopback0 instance-id=0 networks=2.2.2.2/32 
+     type=broadcast retransmit-interval=5s transmit-delay=1s 
+     hello-interval=10s dead-interval=40s priority=128 cost=1 passive 
+     auth=md5 auth-key="12345678" 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> 
+[admin@MKT-2] /routing/ospf/interface-template> ..
+[admin@MKT-2] /routing/ospf> neighbor/
+[admin@MKT-2] /routing/ospf/neighbor> pr
+Flags: V - virtual; D - dynamic 
+ 0  D instance=ospf-instance-1 area=Backbone address=10.10.12.1 
+      router-id=1.1.1.1 state="Full" state-changes=5 adjacency=26m19s 
+      timeout=32s 
+
+ 1  D instance=ospf-instance-1 area=Backbone address=10.10.23.2 
+      router-id=3.3.3.3 state="Full" state-changes=5 adjacency=5m32s 
+      timeout=31s 
+[admin@MKT-2] /routing/ospf/neighbor> /
+[admin@MKT-2] > ip routpr
+bad command name routpr (line 1 column 4)
+[admin@MKT-2] > ip rou
+[admin@MKT-2] /ip/route> pr
+Flags: D - DYNAMIC; A - ACTIVE; c - CONNECT, o - OSPF; + - ECMP
+Columns: DST-ADDRESS, GATEWAY, DISTANCE
+     DST-ADDRESS      GATEWAY            DISTANCE
+DAo+ 0.0.0.0/0        10.10.23.2%ether4       110
+DAo+ 0.0.0.0/0        10.10.12.1%ether2       110
+DAo  1.1.1.1/32       10.10.12.1%ether2       110
+DAc  2.2.2.2/32       loopback0                 0
+DAo  3.3.3.3/32       10.10.23.2%ether4       110
+DAc  10.10.12.0/30    ether2                    0
+DAo+ 10.10.13.0/30    10.10.23.2%ether4       110
+DAo+ 10.10.13.0/30    10.10.12.1%ether2       110
+DAc  10.10.23.0/30    ether4                    0
+DAo  192.168.10.0/24  10.10.12.1%ether2       110
+DAc  192.168.20.0/24  ether3                    0
+DAo  192.168.30.0/24  10.10.23.2%ether4       110
+[admin@MKT-2] /ip/route> 
+[admin@MKT-2] /ip/route> 
+[admin@MKT-2] /ip/route> 
+[admin@MKT-2] /ip/route> 
+[admin@MKT-2] /ip/route> 
+[admin@MKT-2] /ip/route> pr
+Flags: D - DYNAMIC; A - ACTIVE; c - CONNECT, o - OSPF; + - ECMP
+Columns: DST-ADDRESS, GATEWAY, DISTANCE
+     DST-ADDRESS      GATEWAY            DISTANCE
+DAo+ 0.0.0.0/0        10.10.23.2%ether4       110
+DAo+ 0.0.0.0/0        10.10.12.1%ether2       110
+DAo  1.1.1.1/32       10.10.12.1%ether2       110
+DAc  2.2.2.2/32       loopback0                 0
+DAo  3.3.3.3/32       10.10.23.2%ether4       110
+DAc  10.10.12.0/30    ether2                    0
+DAo+ 10.10.13.0/30    10.10.23.2%ether4       110
+DAo+ 10.10.13.0/30    10.10.12.1%ether2       110
+DAc  10.10.23.0/30    ether4                    0
+DAo  192.168.10.0/24  10.10.12.1%ether2       110
+DAc  192.168.20.0/24  ether3                    0
+DAo  192.168.30.0/24  10.10.23.2%ether4       110
+[admin@MKT-2] /ip/route> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mikrotik - 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[admin@MKT-1] /interface/bridge> /
+[admin@MKT-1] > routing/
+[admin@MKT-1] /routing>   
+
+.. -- go up to root
+bfd -- 
+bgp -- 
+discourse -- 
+export -- Print or save an export script that can be used to restore configuration
+fantasy -- 
+filter -- 
+gmp -- 
+id -- 
+igmp-proxy -- 
+nexthop -- 
+ospf -- 
+pimsm -- 
+reinstall-fib -- 
+rip -- 
+route -- 
+rpki -- 
+rule -- 
+stats -- 
+table -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing> ospf/
+[admin@MKT-1] /routing/ospf> 
+
+.. -- go up to routing
+area -- 
+export -- Print or save an export script that can be used to restore configuration
+instance -- 
+interface -- 
+interface-template -- 
+lsa -- 
+neighbor -- 
+static-neighbor -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf> instance/
+[admin@MKT-1] /routing/ospf/instance> set 
+
+<numbers> -- List of item numbers
+comment -- Short description of the item
+disabled -- Defines whether item is ignored or used
+domain-id -- 
+domain-tag -- 
+in-filter-chain -- 
+mpls-te-address -- 
+mpls-te-area -- 
+name -- 
+originate-default -- 
+out-filter-chain -- 
+out-filter-select -- 
+redistribute -- 
+router-id -- 
+routing-table -- 
+use-dn -- 
+version -- 
+vrf -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/instance> set numbers=0 router-id=1.1.1.1 comment="OSPF instance"
+no such item
+[admin@MKT-1] /routing/ospf/instance> set numbers=0 router-id=1.1.1.1 comment="OSPF instance"
+no such item
+[admin@MKT-1] /routing/ospf/instance> pri
+Flags: X - disabled, I - inactive 
+[admin@MKT-1] /routing/ospf/instance> ..
+[admin@MKT-1] /routing/ospf> ..
+[admin@MKT-1] /routing> ..
+[admin@MKT-1] > routing/
+[admin@MKT-1] /routing> id
+[admin@MKT-1] /routing/id> 
+
+.. -- go up to routing
+add -- Create a new item
+comment -- Set comment for items
+disable -- Disable items
+edit -- 
+enable -- Enable items
+export -- Print or save an export script that can be used to restore configuration
+find -- Find items by value
+get -- Gets value of item's property
+print -- Print values of item properties
+remove -- Remove item
+reset -- 
+set -- Change item properties
+Router Identity
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-c quit C-o save&quit C-u undo C-k cut line C-y paste F5 repaint
+unset -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/id> add 
+
+comment -- Short description of the item
+copy-from -- Item number
+disabled -- Defines whether item is ignored or used
+Router Identity for OSPF routing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-c quit C-o save&quit C-u undo C-k cut line C-y paste F5 repaint
+id -- 
+name -- 
+select-dynamic-id -- 
+select-from-vrf -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/id> add disabled=no id=1.1.1.1 name=OSPF_ID 
+[admin@MKT-1] /routing/id> pr
+Flags: D - DYNAMIC
+Columns: NAME, ID, DYNAMIC-ID, SELECT-DYNAMIC-ID, SELECT-FROM-VRF
+#   NAME     ID       DYNAMIC-ID    SELECT-DYNAMIC-ID  SELECT-FROM-VRF
+0 D main              192.168.10.1  only-vrf           main           
+1   OSPF_ID  1.1.1.1                                                  
+[admin@MKT-1] /routing/id> /
+[admin@MKT-1] > rout id                                                      [admin@MKT-1] /routing/id> edit 1 comm
+[admin@MKT-1] /routing/id> pr
+Flags: D - DYNAMIC
+Columns: NAME, ID, DYNAMIC-ID, SELECT-DYNAMIC-ID, SELECT-FROM-VRF
+#   NAME     ID       DYNAMIC-ID    SELECT-DYNAMIC-ID  SELECT-FROM-VRF
+0 D main              192.168.10.1  only-vrf           main           
+;;; Router Identity
+1   OSPF_ID  1.1.1.1                                                  
+[admin@MKT-1] /routing/id> edit 1 comm
+[admin@MKT-1] /routing/id> pr         
+Flags: D - DYNAMIC
+Columns: NAME, ID, DYNAMIC-ID, SELECT-DYNAMIC-ID, SELECT-FROM-VRF
+#   NAME     ID       DYNAMIC-ID    SELECT-DYNAMIC-ID  SELECT-FROM-VRF
+0 D main              192.168.10.1  only-vrf           main           
+;;; Router Identity for OSPF routing
+1   OSPF_ID  1.1.1.1                                                  
+[admin@MKT-1] /routing/id> /
+[admin@MKT-1] > rout ospf ins                                          
+[admin@MKT-1] /routing/ospf/instance> add name=ospf-instance-1 router-id=OSOF_ID comment="OSPF instance" originate-default=always
+invalid value for argument router-id:
+    invalid value for argument ip
+    input does not match any value of id
+[admin@MKT-1] /routing/ospf/instance> add name=ospf-instance-1 router-id=OSPFBackbone area created
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-c quit C-o save&quit C-u undo C-k cut line C-y paste F5 repaint
+_ID comment="OSPF instance" originate-default=always 
+[admin@MKT-1] /routing/ospf/instance> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF instance
+     name="ospf-instance-1" version=2 vrf=main router-id=OSPF_ID 
+     originate-default=always 
+[admin@MKT-1] /routing/ospf/instance> ..
+[admin@MKT-1] /routing/ospf> area
+[admin@MKT-1] /routing/ospf/area> add instance=
+
+Instance ::= ospf-instance-1
+  ospf-instance-1 -- OSPF instance
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/area> add instance=ospf-instance-1 name=
+
+Name -- string value
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/area> add instance=ospf-instance-1 name=Backbone
+[admin@MKT-1] /routing/ospf/area> pr
+Flags: X - disabled, I - inactive, D - dynamic; T - transit-capable 
+ 0    name="Backbone" instance=ospf-instance-1 area-id=0.0.0.0 type=default 
+[admin@MKT-1] /routing/ospf/area> edit 0 comm
+[admin@MKT-1] /routing/ospf/area> pr         
+Flags: X - disabled, I - inactive, D - dynamic; T - transit-capable 
+ 0    ;;; Backbone area created
+      name="Backbone" instance=ospf-instance-1 area-id=0.0.0.0 
+      type=default 
+[admin@MKT-1] /routing/ospf/area> ..
+[admin@MKT-1] /routing/ospf>   
+
+.. -- go up to routing
+area -- 
+export -- Print or save an export script that can be used to restore configuration
+instance -- 
+interface -- 
+interface-template -- 
+lsa -- 
+neighbor -- 
+static-neighbor -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf> interface-template/
+[admin@MKT-1] /routing/ospf/interface-template> 
+
+.. -- go up to ospf
+add -- Create a new item
+comment -- Set comment for items
+disable -- Disable items
+edit -- 
+enable -- Enable items
+export -- Print or save an export script that can be used to restore configuration
+find -- Find items by value
+get -- Gets value of item's property
+move -- Change order of items
+print -- Print values of item properties
+remove -- Remove item
+reset -- 
+set -- Change item properties
+unset -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add 
+
+area -- 
+auth -- 
+auth-id -- 
+auth-key -- 
+comment -- Short description of the item
+copy-from -- Item number
+cost -- 
+dead-interval -- 
+disabled -- Defines whether item is ignored or used
+hello-interval -- 
+instance-id -- 
+interfaces -- 
+networks -- 
+passive -- 
+place-before -- Item number
+prefix-list -- 
+priority -- 
+retransmit-interval -- 
+transmit-delay -- 
+type -- 
+use-bfd -- 
+vlink-neighbor-id -- 
+vlink-transit-area -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=
+
+Area ::= Backbone
+  Backbone -- Backbone area created
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth
+
+area -- 
+auth -- 
+auth-id -- 
+auth-key -- 
+comment -- Short description of the item
+copy-from -- Item number
+cost -- 
+dead-interval -- 
+disabled -- Defines whether item is ignored or used
+hello-interval -- 
+instance-id -- 
+interfaces -- 
+networks -- 
+passive -- 
+place-before -- Item number
+prefix-list -- 
+priority -- 
+retransmit-interval -- 
+transmit-delay -- 
+type -- 
+use-bfd -- 
+vlink-neighbor-id -- 
+vlink-transit-area -- 
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=
+
+Auth ::= md5 | sha1 | sha256 | sha384 | sha512 | ...
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=
+
+AuthKey -- string value
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=      
+
+Type ::= broadcast | nbma | ptmp | ptmp-broadcast | ptp | ...
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=      
+
+Interfaces ::= Interface[,Interfaces]
+  Interface ::= 
+     ::= all | none | dynamic | static
+      all -- contains all interfaces
+      dynamic -- contains dynamic interfaces
+      none -- contains no interfaces
+      static -- contains static interfaces
+     ::= ether1 | ether2 | ether3 | ether4 | loopback0
+      loopback0 -- Bridge interface named loopback0
+
+Press F1 for general console usage help
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether2 networks=10.10.12.0/30 comment="OS
+PF template for ether2"     
+[admin@MKT-1] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether3 networks=10.10.13.0/30 comment="OSPF template for ether3"   
+[admin@MKT-1] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 type=ptp interfaces=ether4 networks=192.168.10.0/24 comment="OSPF template for ether4"              
+[admin@MKT-1] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 
+     networks=192.168.10.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+[admin@MKT-1] /routing/ospf/interface-template> add area=Backbone auth=md5 auth-key=12345678 interfaces=loopback0 networks=1.1.1.1/32 comment="OSPF template for loopback0" passive                            
+[admin@MKT-1] /routing/ospf/interface-template> pr
+Flags: X - disabled, I - inactive 
+ 0   ;;; OSPF template for ether2
+     area=Backbone interfaces=ether2 instance-id=0 networks=10.10.12.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 1   ;;; OSPF template for ether3
+     area=Backbone interfaces=ether3 instance-id=0 networks=10.10.13.0/30 
+     type=ptp retransmit-interval=5s transmit-delay=1s hello-interval=10s 
+     dead-interval=40s priority=128 cost=1 auth=md5 auth-key="12345678" 
+
+ 2   ;;; OSPF template for ether4
+     area=Backbone interfaces=ether4 instance-id=0 
+     networks=192.168.10.0/24 type=ptp retransmit-interval=5s 
+     transmit-delay=1s hello-interval=10s dead-interval=40s priority=128 
+     cost=1 auth=md5 auth-key="12345678" 
+
+ 3   ;;; OSPF template for loopback0
+     area=Backbone interfaces=loopback0 instance-id=0 networks=1.1.1.1/32 
+     type=broadcast retransmit-interval=5s transmit-delay=1s 
+     hello-interval=10s dead-interval=40s priority=128 cost=1 passive 
+     auth=md5 auth-key="12345678" 
+[admin@MKT-1] /routing/ospf/interface-template> 
+[admin@MKT-1] /routing/ospf/interface-template> 
+[admin@MKT-1] /routing/ospf/interface-template> ..
+[admin@MKT-1] /routing/ospf> neighbor/
+[admin@MKT-1] /routing/ospf/neighbor> pr
+Flags: V - virtual; D - dynamic 
+ 0  D instance=ospf-instance-1 area=Backbone address=10.10.12.2 
+      router-id=2.2.2.2 state="Full" state-changes=6 adjacency=26m46s 
+      timeout=30s 
+
+ 1  D instance=ospf-instance-1 area=Backbone address=10.10.13.2 
+      router-id=3.3.3.3 state="Full" state-changes=6 adjacency=6m35s 
+      timeout=34s 
+[admin@MKT-1] /routing/ospf/neighbor> /ip rout pr 
+Flags: D - DYNAMIC; A - ACTIVE; c - CONNECT, o - OSPF; + - ECMP
+Columns: DST-ADDRESS, GATEWAY, DISTANCE
+     DST-ADDRESS      GATEWAY            DISTANCE
+DAo+ 0.0.0.0/0        10.10.13.2%ether3       110
+DAo+ 0.0.0.0/0        10.10.12.2%ether2       110
+DAc  1.1.1.1/32       loopback0                 0
+DAo  2.2.2.2/32       10.10.12.2%ether2       110
+DAo  3.3.3.3/32       10.10.13.2%ether3       110
+DAc  10.10.12.0/30    ether2                    0
+DAc  10.10.13.0/30    ether3                    0
+DAo+ 10.10.23.0/30    10.10.13.2%ether3       110
+DAo+ 10.10.23.0/30    10.10.12.2%ether2       110
+DAc  192.168.10.0/24  ether4                    0
+DAo  192.168.20.0/24  10.10.12.2%ether2       110
+DAo  192.168.30.0/24  10.10.13.2%ether3       110
+[admin@MKT-1] /routing/ospf/neighbor> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VPCS> set pcname VPC-9
+
+VPC-9> ip 192.168.30.2/24 192.168.30.1
+Checking for duplicate address...
+save
+VPC-9 : 192.168.30.2 255.255.255.0 gateway 192.168.30.1
+
+VPC-9> save
+Saving startup configuration to startup.vpc
+.  done
+
+VPC-9> ping 192.168.30.2
+
+192.168.30.2 icmp_seq=1 ttl=64 time=0.001 ms
+192.168.30.2 icmp_seq=2 ttl=64 time=0.001 ms
+192.168.30.2 icmp_seq=3 ttl=64 time=0.001 ms
+192.168.30.2 icmp_seq=4 ttl=64 time=0.001 ms
+192.168.30.2 icmp_seq=5 ttl=64 time=0.001 ms
+
+VPC-9> ping 192.168.30.1
+
+host (192.168.30.1) not reachable
+
+VPC-9> 
+
+Welcome to Virtual PC Simulator, version 1.3 (0.8.1)
+Dedicated to Daling.
+Build time: May  7 2022 15:27:29
+Copyright (c) 2007-2015, Paul Meng (mirnshi@gmail.com)
+Copyright (c) 2021, Alain Degreffe (alain.degreffe@eve-ng.net)
+All rights reserved.
+
+VPCS is free software, distributed under the terms of the "BSD" licence.
+Source code and license can be found at vpcs.sf.net.
+For more information, please visit wiki.freecode.com.cn.
+Modified version for EVE-NG.
+
+Press '?' to get help.
+
+Executing the startup file
+
+
+Checking for duplicate address...
+VPC-9 : 192.168.30.2 255.255.255.0 gateway 192.168.30.1
+
+VPC-9> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VPCS> set pcname VPC-8
+
+VPC-8> ip 192.168.20.2/24 192.168.20.1
+Checking for duplicate address...
+VPC-8 : 192.168.20.2 255.255.255.0 gateway 192.168.20.1
+
+VPC-8> save
+Saving startup configuration to startup.vpc
+.  done
+
+VPC-8> shw ip
+Bad command: "shw ip". Use ? for help.
+
+VPC-8> show ip
+
+NAME        : VPC-8[1]
+IP/MASK     : 192.168.20.2/24
+GATEWAY     : 192.168.20.1
+DNS         : 
+MAC         : 00:50:79:66:68:08
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPC-8> ping 192.168.20.2
+
+192.168.20.2 icmp_seq=1 ttl=64 time=0.001 ms
+192.168.20.2 icmp_seq=2 ttl=64 time=0.001 ms
+192.168.20.2 icmp_seq=3 ttl=64 time=0.001 ms
+192.168.20.2 icmp_seq=4 ttl=64 time=0.001 ms
+192.168.20.2 icmp_seq=5 ttl=64 time=0.001 ms
+
+VPC-8> ping 192.168.20.1
+
+host (192.168.20.1) not reachable
+
+VPC-8> ping 192.168.20.1
+
+84 bytes from 192.168.20.1 icmp_seq=1 ttl=64 time=7.946 ms
+84 bytes from 192.168.20.1 icmp_seq=2 ttl=64 time=2.037 ms
+84 bytes from 192.168.20.1 icmp_seq=3 ttl=64 time=1.258 ms
+84 bytes from 192.168.20.1 icmp_seq=4 ttl=64 time=1.467 ms
+84 bytes from 192.168.20.1 icmp_seq=5 ttl=64 time=5.939 ms
+
+VPC-8> 
+
+Welcome to Virtual PC Simulator, version 1.3 (0.8.1)
+Dedicated to Daling.
+Build time: May  7 2022 15:27:29
+Copyright (c) 2007-2015, Paul Meng (mirnshi@gmail.com)
+Copyright (c) 2021, Alain Degreffe (alain.degreffe@eve-ng.net)
+All rights reserved.
+
+VPCS is free software, distributed under the terms of the "BSD" licence.
+Source code and license can be found at vpcs.sf.net.
+For more information, please visit wiki.freecode.com.cn.
+Modified version for EVE-NG.
+
+Press '?' to get help.
+
+Executing the startup file
+
+
+Checking for duplicate address...
+VPC-8 : 192.168.20.2 255.255.255.0 gateway 192.168.20.1
+
+VPC-8> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VPCS> set pcname VPC-7
+
+VPC-7> ip 192.168.10.2/24 192.168.10.1
+Checking for duplicate address...
+VPC-7 : 192.168.10.2 255.255.255.0 gateway 192.168.10.1
+
+VPC-7> show ip
+
+NAME        : VPC-7[1]
+IP/MASK     : 192.168.10.2/24
+GATEWAY     : 192.168.10.1
+DNS         : 
+MAC         : 00:50:79:66:68:07
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPC-7> ping 192.168.10.2
+
+192.168.10.2 icmp_seq=1 ttl=64 time=0.001 ms
+192.168.10.2 icmp_seq=2 ttl=64 time=0.001 ms
+192.168.10.2 icmp_seq=3 ttl=64 time=0.001 ms
+192.168.10.2 icmp_seq=4 ttl=64 time=0.001 ms
+192.168.10.2 icmp_seq=5 ttl=64 time=0.001 ms
+
+VPC-7> ping 192.168.10.1
+
+host (192.168.10.1) not reachable
+
+VPC-7> save
+Saving startup configuration to startup.vpc
+.  done
+
+VPC-7> 
+
+Welcome to Virtual PC Simulator, version 1.3 (0.8.1)
+Dedicated to Daling.
+Build time: May  7 2022 15:27:29
+Copyright (c) 2007-2015, Paul Meng (mirnshi@gmail.com)
+Copyright (c) 2021, Alain Degreffe (alain.degreffe@eve-ng.net)
+All rights reserved.
+
+VPCS is free software, distributed under the terms of the "BSD" licence.
+Source code and license can be found at vpcs.sf.net.
+For more information, please visit wiki.freecode.com.cn.
+Modified version for EVE-NG.
+
+Press '?' to get help.
+
+Executing the startup file
+
+
+Checking for duplicate address...
+VPC-7 : 192.168.10.2 255.255.255.0 gateway 192.168.10.1
+
+VPC-7> ping 192.168.20.2
+
+192.168.20.2 icmp_seq=1 timeout
+192.168.20.2 icmp_seq=2 timeout
+192.168.20.2 icmp_seq=3 timeout
+192.168.20.2 icmp_seq=4 timeout
+192.168.20.2 icmp_seq=5 timeout
+
+VPC-7> ping 192.168.20.2
+
+84 bytes from 192.168.20.2 icmp_seq=1 ttl=62 time=5.605 ms
+84 bytes from 192.168.20.2 icmp_seq=2 ttl=62 time=5.143 ms
+84 bytes from 192.168.20.2 icmp_seq=3 ttl=62 time=4.265 ms
+84 bytes from 192.168.20.2 icmp_seq=4 ttl=62 time=6.824 ms
+84 bytes from 192.168.20.2 icmp_seq=5 ttl=62 time=4.057 ms
+
+VPC-7> ping 192.168.30.2
+
+84 bytes from 192.168.30.2 icmp_seq=1 ttl=62 time=10.218 ms
+84 bytes from 192.168.30.2 icmp_seq=2 ttl=62 time=4.844 ms
+84 bytes from 192.168.30.2 icmp_seq=3 ttl=62 time=4.024 ms
+84 bytes from 192.168.30.2 icmp_seq=4 ttl=62 time=3.952 ms
+84 bytes from 192.168.30.2 icmp_seq=5 ttl=62 time=6.589 ms
+
+VPC-7> ping 10.10.12.1
+
+84 bytes from 10.10.12.1 icmp_seq=1 ttl=64 time=1.421 ms
+84 bytes from 10.10.12.1 icmp_seq=2 ttl=64 time=1.414 ms
+84 bytes from 10.10.12.1 icmp_seq=3 ttl=64 time=1.848 ms
+84 bytes from 10.10.12.1 icmp_seq=4 ttl=64 time=1.970 ms
+84 bytes from 10.10.12.1 icmp_seq=5 ttl=64 time=1.034 ms
+
+VPC-7> ping 10.10.12.2
+
+84 bytes from 10.10.12.2 icmp_seq=1 ttl=63 time=21.861 ms
+84 bytes from 10.10.12.2 icmp_seq=2 ttl=63 time=4.300 ms
+84 bytes from 10.10.12.2 icmp_seq=3 ttl=63 time=3.780 ms
+84 bytes from 10.10.12.2 icmp_seq=4 ttl=63 time=4.500 ms
+^[[A84 bytes from 10.10.12.2 icmp_seq=5 ttl=63 time=2.641 ms
+^[[A
+VPC-7> ping 10.10.12.1
+VPC-7> ping 10.10.10.2
+
+*10.10.12.2 icmp_seq=1 ttl=63 time=118.094 ms (ICMP type:11, code:0, TTL expired in transit)
+*10.10.12.2 icmp_seq=2 ttl=63 time=44.447 ms (ICMP type:11, code:0, TTL expired in transit)
+*10.10.12.2 icmp_seq=3 ttl=63 time=50.432 ms (ICMP type:11, code:0, TTL expired in transit)
+*10.10.12.2 icmp_seq=4 ttl=63 time=42.081 ms (ICMP type:11, code:0, TTL expired in transit)
+*10.10.12.2 icmp_seq=5 ttl=63 time=52.149 ms (ICMP type:11, code:0, TTL expired in transit)
+
+VPC-7> 
+VPC-7> ping 10.10.13.2
+
+84 bytes from 10.10.13.2 icmp_seq=1 ttl=63 time=2.889 ms
+84 bytes from 10.10.13.2 icmp_seq=2 ttl=63 time=2.991 ms
+^C
+VPC-7> ping 10.10.13.1
+
+84 bytes from 10.10.13.1 icmp_seq=1 ttl=64 time=1.069 ms
+84 bytes from 10.10.13.1 icmp_seq=2 ttl=64 time=3.253 ms
+^C
+VPC-7> ping 10.10.23.1
+
+84 bytes from 10.10.23.1 icmp_seq=1 ttl=63 time=3.841 ms
+84 bytes from 10.10.23.1 icmp_seq=2 ttl=63 time=4.667 ms
+^C
+VPC-7> ping 10.10.23.2
+
+84 bytes from 10.10.23.2 icmp_seq=1 ttl=63 time=4.790 ms
+84 bytes from 10.10.23.2 icmp_seq=2 ttl=63 time=36.901 ms
+84 bytes from 10.10.23.2 icmp_seq=3 ttl=63 time=3.275 ms
+^C
+VPC-7> 
+
+
+
+

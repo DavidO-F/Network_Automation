@@ -1,0 +1,18 @@
+002-File Sharing on Dynamic Network
+
+/ip address add address=10.1.1.1/24 interface=ether2 comment="Interface IP Address Connection SW1 e0/1"  
+
+
+/ip/pool add name=IP_Pool ranges=10.1.1.2-10.1.1.254 comment="IP Pool for LAN Devices"
+
+/ip/pool print
+
+/ip/dhcp-server add address-pool=IP_Pool comment="DHCP Server for LAN Devices" interface=ether2 name=LAN_SERVER server-address=10.1.1.1
+
+/ip/dhcp-server print
+
+/ip/dhcp-server/network add address=10.1.1.0/24 comment="Network Setup for LAN Devices" dns-server=8.8.8.8 gateway=10.1.1.1
+
+/ip/dhcp-server/network print
+
+add chain=srcnat src-address=10.1.1.0/24 action=masquerade comment="NAT For LAN Devices"

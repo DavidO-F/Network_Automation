@@ -1,0 +1,34 @@
+Website to Learn Networking
+
+1. https://www.deeserve.co.uk/
+	https://www.deeserve.co.uk/blog/network-subnets-and-usable-ips-cidr-reference-guide/
+	https://www.deeserve.co.uk/it-support/it-audit/
+
+2. https://www.deeserve.co.uk/it-support/it-audit/
+
+3. https://www.rogerperkin.co.uk/ccie/mpls/cisco-mpls-tutorial/
+
+4. https://www.fatpipeinc.com/5. https://scoop.co.za/blog/how-to-configure-multi-wan-failover-on-mikrotik-routeros
+
+6. Juniper : https://www.networkfuntimes.com/category/bgp/
+
+
+
+
+
+
+Website to Learn Cybersecurity and Hacking
+
+1. https://ethicalhacksacademy.com/
+
+
+
+
+
+Learn for Certification
+1. Skillsforall.com
+2. edx.org : https://learning.edx.org/
+3. Greatlearning
+4. Dataflair
+5. afrinicacademy
+6. huawei

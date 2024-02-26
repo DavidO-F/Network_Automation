@@ -1,0 +1,91 @@
+﻿SITE-A Current configuration : 1617 bytes
+!
+! Last configuration change at 11:22:16 UTC Wed Jan 10 2024
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname SITE-A
+!
+boot-start-marker
+boot-end-marker
+!
+no aaa new-model
+ip cef
+!
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+crypto isakmp policy 20
+ encr aes
+ hash md5
+ authentication pre-share
+ group 14
+crypto isakmp key DTT123 address 101.1.1.100    
+!
+!
+crypto ipsec transform-set T-SET-DTT esp-aes esp-md5-hmac 
+ mode tunnel
+!
+crypto ipsec profile DTT123-profile
+ description IPSec profile between SITE-A and SITE-B
+ set transform-set T-SET-DTT 
+!
+interface Tunnel0
+ description "Interface IP Address Connection to SITE-B Tu0"
+ ip address 172.16.1.1 255.255.255.252
+ ip ospf 10 area 0
+ tunnel source 102.1.1.100
+ tunnel destination 101.1.1.100
+ tunnel protection ipsec profile DTT123-profile
+!
+interface FastEthernet0/0
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/0
+ description "Interface IP Address Connection to ISP-1 e1/1"
+ ip address 102.1.1.100 255.255.255.0
+ duplex full
+!
+interface Ethernet1/1
+ description "Interface IP Address Connection to VPC-2"
+ ip address 192.168.102.1 255.255.255.0
+ ip ospf 10 area 0
+ duplex full
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+ duplex full
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+ duplex full
+!
+router ospf 10
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 102.1.1.1
+!
+control-plane
+!
+!
+line con 0
+ stopbits 1
+line aux 0
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end
+

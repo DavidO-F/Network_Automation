@@ -1,0 +1,43 @@
+Burst-limit is the maximum bandwidth value (either upload / download) to be received by a user
+when a burst occurs. The burst-limit value must be greater than the max-limit (MIR) given.
+b. Burst-time is the time period used to calculate the average data-rate, not to indicate how long the
+burst takes.
+c. Burst-threshold is the value that determines when burst can be executed and when burst should be
+stopped. The burst-threshold value is generally ¾ of the max-limit value. If the average data-rate
+value is lower than the burst-threshold, then the burst will run. But if the average data-rate value is
+equal to or greater than the burst-threshold, then the burst will be stopped.
+
+
+Oracle Database Administration Zero Hero
+
+
+https://www.udemy.com/course/windows-server-ad-security-audit-lab/
+
+Building and Managing Windows Server 2022 Lab Environment:
+https://drive.google.com/drive/folders/1ZQfJZiZFteFMosvu5hBbQHooyPUCL9bm
+
+Migrate on Premise SQL Server Cloud Azure SQL Database:
+https://drive.google.com/drive/folders/1B4jyilUZTLQ5q8lWTVmsfRwUKn-Sc74c
+
+Active Directory: Implementing and Administering AD FS:
+https://drive.google.com/drive/folders/104UBdLQpf6mHapVyaDXkJWc_cxzIjmWb
+
+Linux for Devops Engineers and Developers:
+https://drive.google.com/drive/folders/1gPRGjILPWtYy5_CbL7ESJoglMzTLlgle
+
+Build Android Apps Python
+
+
+Login as an Admin
+Check that the state and Status of the Router
+Backup the present configuration
+How to backup configuration(2 method)
+Ensure the date and time is correct
+Goto to Queues
+Simple Queues tab
+
+https://drive.google.com/drive/folders/1SgSXnRBBqq9bvwq-M1-UbHuyltp_XQ-N
+
+
+
+

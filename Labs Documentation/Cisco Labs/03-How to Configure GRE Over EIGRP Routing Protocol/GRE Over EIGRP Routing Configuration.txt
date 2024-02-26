@@ -1,0 +1,283 @@
+How to Configure GRE Over EIGRP Routing protocol In Cisco Router
+
+1. Select Componenet on EVE NG
+2. Arrange the component
+3. Connect the component
+4. Label the topology
+5. Configure each component
+
+All VPC Configurations
+#########################################################
+VPC-1
+set pcname VPC-1
+ip 192.168.1.1/24 192.168.1.100
+save
+
+#########################################################
+VPC-2
+set pcname VPC-2
+ip 192.168.1.2/24 192.168.1.100
+save
+
+#########################################################
+VPC-3
+set pcname VPC-3
+ip 192.168.2.1/24 192.168.2.100
+save
+#########################################################
+VPC-4
+set pcname VPC-4
+ip 192.168.2.2/24 192.168.2.100
+save
+#########################################################
+
+
+#########################################################
+Verification of Configuration
+
+show ip
+
+Check reachability: Check reachability to all IP enabled Interfaces
+Possible ping from VPC-1
+#########################################################
+ping 192.168.1.1
+ping 192.168.1.100
+ping 10.0.0.1
+ping 10.0.0.2
+ping 192.168.2.100
+ping 192.168.2.1
+ping 192.168.2.2
+ping 11.0.0.1
+ping 11.0.0.2
+ping 12.0.0.1
+ping 12.0.0.2
+ping  
+#########################################################
+
+
+
+All Routers Configuration
+
+Router (R-1) Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-1
+
+interface f1/0
+description "Interface IP Address Connection to R-2 Fa1/0"
+ip address 10.0.0.1 255.0.0.0
+no shutdown
+exit
+
+interface f0/0
+description Interface "IP Address Connection to SW-4 e0/0"
+ip address 192.168.1.100 255.255.255.0
+duplex half
+no shutdown
+end
+write
+#########################################################
+
+Router (R-1) Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 10.0.0.0
+network 192.168.1.0
+end
+write
+#########################################################
+
+Router (R-1) Phase 3 configuration
+#########################################################
+enable
+configure terminal
+interface tunnel 0
+description Interface "IP Address Connection to R-4 Tu0"
+ip address 172.16.1.1 255.255.255.252
+tunnel source 10.0.0.1
+tunnel destination 12.0.0.2
+end
+write
+#########################################################
+
+Router (R-1)Phase 4 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+no network 192.168.1.0
+end
+configure terminal
+ip route 192.168.2.0 255.255.255.0 172.16.1.2
+end
+write
+#########################################################
+
+
+Router (R-2) Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-2
+
+interface f1/0
+description "Interface IP Address Connection to R-1 Fa1/0"
+ip address 10.0.0.2 255.0.0.0
+no shutdown
+exit
+
+interface f2/0
+description "Interface IP Address Connection to R-3 Fa1/0"
+ip address 11.0.0.1 255.0.0.0
+no shutdown
+exit
+end
+write
+#########################################################
+
+Router (R-2) Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 10.0.0.0
+network 11.0.0.0
+end
+write
+#########################################################
+
+
+Router 3 (R-3) Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-3
+
+interface f1/0
+description "Interface IP Address Connection to R-2 Fa2/0"
+ip address 11.0.0.2 255.0.0.0
+no shutdown
+exit
+
+interface f2/0
+description "Interface IP Address Connection to R-4 Fa1/0"
+ip address 12.0.0.1 255.0.0.0
+no shutdown
+exit
+end
+write
+#########################################################
+
+Router (R-3) Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 11.0.0.0
+network 12.0.0.0
+end
+write
+#########################################################
+
+
+
+Router (R-4) Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-4
+
+interface f1/0
+description "Interface IP Address Connection to R-3 Fa2/0"
+ip address 12.0.0.2 255.0.0.0
+no shutdown
+exit
+
+interface f0/0
+description Interface "IP Address Connection to SW-7 e0/0"
+ip address 192.168.2.100 255.255.255.0
+duplex half
+no shutdown
+end
+write
+#########################################################
+
+Router (R-4) Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 12.0.0.0
+network 192.168.2.0
+end
+write
+#########################################################
+
+Router (R-4) Phase 3 configuration
+#########################################################
+enable
+configure terminal
+interface tunnel 0
+description Interface "IP Address Connection to R-1 Tu0"
+ip address 172.16.1.2 255.255.255.252
+tunnel source 12.0.0.2
+tunnel destination 10.0.0.1
+end
+write
+#########################################################
+
+Phase 4 configuration
+Router (R-4)
+#########################################################
+enable
+configure terminal
+router eigrp 100
+no network 192.168.2.0
+end
+configure terminal
+ip route 192.168.1.0 255.255.255.0 172.16.1.1
+end
+write
+#########################################################
+
+
+
+
+#########################################################
+Verification and Check for Router Configuration
+#########################################################
+
+Phase 1 Configuration Check
+1. Check the interface IP Address assigned.
+2. Check the interface description
+3. Check interface up status
+
+#########################################################
+show ip interface brief
+show interface description
+show ip interface brief | in up
+#########################################################
+show ip route
+show ip route eigrp
+#########################################################
+trace 192.168.2.2
+trace 192.168.1.1

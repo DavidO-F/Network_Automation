@@ -1,0 +1,78 @@
+06-Basic OSPF Multiple Area Configuration
+
+MK-1
+/system identity set name=MK-1
+/interface/bridge  add name=loopback comment="Bridge Interface for loopback IP Address"
+/ip/address add add=10.0.0.1/24 int=ether1 com="Interface IP Address for Connection to the Switch"
+/ip/address add add=10.255.255.1/32 int=loopback com="IP Address for loopback Interface"
+
+/routing/id add name=Router_ID id=10.255.255.1 comment=Router-ID disabled=no 
+/routing/ospf/instance add router-id=Router_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=OSPF-Area-0 area-id=0.0.0.0 comment="Backbone Area or OSPF Area 0" instance=OSPF-Instance-1 type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=OSPF-Area-0  type=broadcast interfaces=ether1 comment="Advertise ether 1 interface"
+
+
+
+MK-2
+/system identity set name=MK-2
+/interface/bridge  add name=loopback comment="Bridge Interface for loopback IP Address"
+/ip/address add add=10.0.0.2/24 int=ether1 com="Interface IP Address  for Connection to the Switch"
+/ip/address add add=10.255.255.2/32 int=loopback com="IP Address for loopback Interface"
+/ip/address add add=10.1.0.1/30 int=ether2 com="Interface IP Address  for Connection to the MK-4"
+
+/routing/id add name=Router_ID id=10.255.255.2 comment=Router-ID disabled=no 
+/routing/ospf/instance add router-id=Router_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=OSPF-Area-0 area-id=0.0.0.0 comment="Backbone Area or OSPF Area 0" instance=OSPF-Instance-1 type=default
+/routing/ospf/area add name=OSPF-Area-1 area-id=0.0.0.1 comment="OSPF Area 1" instance=OSPF-Instance-1 type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=OSPF-Area-0  type=broadcast interfaces=ether1 comment="Advertise ether 1 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-1  type=ptp interfaces=ether2 comment="Advertise ether 2 interface"
+
+
+MK-3
+/system identity set name=MK-3
+/interface/bridge  add name=loopback comment="Bridge Interface for loopback IP Address"
+/ip/address add add=10.0.0.3/24 int=ether1 com="Interface IP Address  for Connection to the Switch"
+/ip/address add add=10.255.255.3/32 int=loopback com="IP Address for loopback Interface"
+/ip/address add add=10.2.0.1/30 int=ether2 com="Interface IP Address  for Connection to the MK-5"
+
+/routing/id add name=Router_ID id=10.255.255.3 comment=Router-ID disabled=no 
+/routing/ospf/instance add router-id=Router_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=OSPF-Area-0 area-id=0.0.0.0 comment="Backbone Area or OSPF Area 0" instance=OSPF-Instance-1 type=default
+/routing/ospf/area add name=OSPF-Area-2 area-id=0.0.0.2 comment="OSPF Area 2" instance=OSPF-Instance-1 type=default
+
+/routing/ospf/area> /routing/ospf/interface-template add auth=md5 auth-key=123 area=OSPF-Area-0  type=broadcast interfaces=ether1 comment="Advertise ether 1 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-2  type=ptp interfaces=ether2 comment="Advertise ether 2 interface"
+
+MK-4
+/system identity set name=MK-4
+/interface/bridge  add name=loopback comment="Bridge Interface for loopback IP Address"
+/ip/address add add=10.1.0.2/30 int=ether1 com="Interface IP Address  for Connection to the MK-2"
+/ip/address add add=10.255.255.4/32 int=loopback com="IP Address for loopback Interface"
+/ip/address add add=192.168.0.1/24 int=ether2 com="Interface IP Address  for Connection to the LAN1"
+/ip/address add add=192.168.1.1/24 int=ether3 com="Interface IP Address  for Connection to the LAN2"
+
+/routing/id add name=Router_ID id=10.255.255.4 comment=Router-ID disabled=no
+/routing/ospf/instance add router-id=Router_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=OSPF-Area-1 area-id=0.0.0.1 comment="OSPF Area 1" instance=OSPF-Instance-1 type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-1  type=ptp interfaces=ether1 comment="Advertise ether 1 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-1  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-1  type=broadcast interfaces=ether3 passive comment="Advertise ether 3 interface"
+
+MK-5
+/system identity set name=MK-5
+/interface/bridge  add name=loopback comment="Bridge Interface for loopback IP Address"
+/ip/address add add=10.2.0.2/30 int=ether1 com="Interface IP Address  for Connection to the MK-3"
+/ip/address add add=10.255.255.5/32 int=loopback com="IP Address for loopback Interface"
+/ip/address add add=172.16.0.1/24 int=ether2 com="Interface IP Address  for Connection to the LAN1"
+/ip/address add add=172.16.1.1/24 int=ether3 com="Interface IP Address  for Connection to the LAN2"
+
+/routing/id add name=Router_ID id=10.255.255.5 comment=Router-ID disabled=no
+/routing/ospf/instance add router-id=Router_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=OSPF-Area-2 area-id=0.0.0.2 comment="OSPF Area 2" instance=OSPF-Instance-1 type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-2  type=ptp interfaces=ether1 comment="Advertise ether 1 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-2  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=OSPF-Area-2  type=broadcast interfaces=ether3 passive comment="Advertise ether 3 interface"

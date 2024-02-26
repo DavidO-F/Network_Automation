@@ -1,0 +1,120 @@
+03 VLAN ROUTE
+
+Mikrotik Router Configurations
+
+Mikrotik-1
+# 2023-12-09 05:18:41 by RouterOS 7.11.2
+# Set the Router Identity name
+/system identity set name=Mikrotik-1
+
+# Enable the router so that remote login is possible via mac address
+/tool romon set enabled=yes
+
+# Create a Bridge interface
+/interface bridge add name=VLAN-10-BRiDGE
+/interface bridge add name=VLAN-20-BRIDGE
+
+# Create and add VLAN interface to Physical interface
+/interface vlan add interface=ether3 name=BLIE-VLAN-2 vlan-id=20
+/interface vlan add interface=ether2 name=BLUE-VLAN vlan-id=20
+/interface vlan add interface=ether2 name=RED-VLAN vlan-id=10
+/interface vlan add interface=ether3 name=RED-VLAN-2 vlan-id=10
+
+# Create IP Address Pool
+/ip pool add name=dhcp_pool2 ranges=172.16.0.2-172.16.0.254
+/ip pool add name=dhcp_pool3 ranges=10.0.0.2-10.0.0.254
+
+# Create DHCP Server leveraging on the IP Address Pool
+/ip dhcp-server add address-pool=dhcp_pool2 interface=VLAN-20-BRIDGE name=dhcp2
+/ip dhcp-server add address-pool=dhcp_pool3 interface=VLAN-10-BRiDGE name=dhcp3
+
+# Add VLAN interface to Bridge Interface
+/interface bridge port add bridge=VLAN-20-BRIDGE interface=BLIE-VLAN-2
+/interface bridge port add bridge=VLAN-20-BRIDGE interface=BLUE-VLAN
+
+/interface bridge port add bridge=VLAN-10-BRiDGE interface=RED-VLAN
+/interface bridge port add bridge=VLAN-10-BRiDGE interface=RED-VLAN-2
+
+# Assign IP Address to Interface
+/ip address add address=10.0.0.1/24 interface=RED-VLAN network=10.0.0.0
+/ip address add address=172.16.0.1/24 comment="Interface IP Address for VLAN 20 (Blue VLAN)" interface=BLUE-VLAN network=172.16.0.0
+
+# Default router configure (ether1 as dhcp client)
+/ip dhcp-client add interface=ether1
+
+# Configure DHCP Server Network
+/ip dhcp-server network add address=10.0.0.0/24 gateway=10.0.0.1
+/ip dhcp-server network add address=172.16.0.0/24 gateway=172.16.0.1
+
+# Configure firewall rule for internet access
+/ip firewall nat add action=masquerade chain=srcnat out-interface=ether1 src-address=10.0.0.0/24
+/system identity set name=Mikrotik-1
+
+/tool romon set enabled=yes
+
+
+
+
+Mikrotik-2
+/system identity set name=Mikrotik-1
+/tool romon set enabled=yes
+
+# Create Bridge interface
+/interface bridge add comment="Blue Bridge Interface" name=BLUE-BRIDGE
+/interface bridge add comment="Red Bridge Interface" name=RED-BRIGE
+
+# Create and add VLAN interface (Virtual Interface) to Physical interface
+# This makes ether1 a trunk interface and port
+/interface vlan add interface=ether1 name=BLUE-VLAN vlan-id=20
+/interface vlan add interface=ether1 name=RED-VLAN vlan-id=10
+
+# Add VLAN interface and physical interface to Bridge Interface (Virtual Interface)
+# This also make the Physical interface (ether2) a trunk port/interface
+/interface bridge port add bridge=RED-BRIGE interface=ether2
+/interface bridge port add bridge=RED-BRIGE interface=RED-VLAN
+
+/interface bridge port add bridge=BLUE-BRIDGE interface=ether3
+/interface bridge port add bridge=BLUE-BRIDGE interface=BLUE-VLAN
+/ip dhcp-client add interface=ether1
+
+
+Mikrotik-3
+/system identity set name=Mikrotik-1
+/tool romon set enabled=yes
+
+/interface bridge add name=BLUE-VLAN-BRIDGE
+/interface bridge add name=RED-VLAN-BRIDGE
+
+/interface vlan add interface=ether1 name=BLUE-VLAN vlan-id=20
+/interface vlan add interface=ether1 name=RED-VLAN vlan-id=10
+
+/interface bridge port add bridge=BLUE-VLAN-BRIDGE interface=BLUE-VLAN
+/interface bridge port add bridge=BLUE-VLAN-BRIDGE interface=ether2
+/interface bridge port add bridge=RED-VLAN-BRIDGE interface=RED-VLAN
+/interface bridge port add bridge=RED-VLAN-BRIDGE interface=ether3
+/ip dhcp-client add interface=ether1
+
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+
+
+
+Mikrotik-4
+/system identity set name=Mikrotik-1
+/tool romon set enabled=yes
+
+
+
+
+
+Mikrotik-5
+/system identity set name=Mikrotik-1
+/tool romon set enabled=yes
+
+
+
+
+Mikrotik-6
+/system identity set name=Mikrotik-1
+/tool romon set enabled=yes

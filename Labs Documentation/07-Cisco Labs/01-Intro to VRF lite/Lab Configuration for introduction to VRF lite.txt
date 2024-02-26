@@ -1,0 +1,412 @@
+Configuration of Lab
+Lab Configuration for introduction to VRF lite
+
+VPC-9
+
+set pcname VPC-9
+ip 192.168.1.2/24 192.168.1.1
+save
+
+
+VPC-10
+
+set pcname VPC-10
+ip 192.168.1.3/24 192.168.1.1
+save
+
+
+VPC-11
+
+set pcname VPC-11
+ip 10.0.1.2/24 10.0.1.1
+save
+
+VPC-12
+
+set pcname VPC-12
+ip 192.168.2.4/24 192.168.2.1
+save
+
+
+VPC-13
+
+set pcname VPC-13
+ip 10.0.2.3/24 10.0.2.1
+save
+
+
+VPC-14
+
+set pcname VPC-14
+ip 192.168.2.3/24 192.168.2.1
+save
+
+
+VPC-15
+
+set pcname VPC-15
+ip 10.0.3.4/24 10.0.3.1
+save
+
+
+VPC-16
+
+set pcname VPC-16
+ip 192.168.3.3/24 192.168.3.1
+save
+
+
+VPC-17
+
+set pcname VPC-17
+ip 10.0.3.10/24 10.0.3.1
+save
+
+
+
+
+SW-1
+
+enable
+configure terminal
+hostname SW-1
+
+vlan 20
+name LGL-VLAN-RED
+vlan 10
+name LGL-VlaN-BLUE
+
+do show vlan brief
+
+exit
+
+interface e0/1
+description "Interface in VLAN 20 connection to VPC-9"
+switchport mode access
+switchport access vlan 20
+
+interface e0/2
+description "Interface in VLAN 20 connection to VPC-10"
+switchport mode access
+switchport access vlan 20
+
+interface e0/3
+description "Interface in VLAN 10 connection to VPC-11"
+switchport mode access
+switchport access vlan 10
+
+interface e0/0
+description "Interface in trunk mode connection to R-2 e2/1"
+switchport trunk encapsulation dot1q
+switchport mode trunk
+
+end
+
+write memory
+
+
+SW-2
+
+enable
+configure terminal
+hostname SW-2
+
+vlan 20
+name IKY-VLAN-RED
+vlan 10
+name IKY-VlaN-BLUE
+
+do show vlan brief
+
+exit
+
+interface eo/1
+description "Interface in VLAN 20 connection to VPC-12"
+switchport mode access
+switchport access vlan 20
+
+interface eo/2
+description "Interface in VLAN 10 connection to VPC-13"
+switchport mode access
+switchport access vlan 10
+
+interface eo/3
+description "Interface in VLAN 20 connection to VPC-14"
+switchport mode access
+switchport access vlan 20
+
+interface eo/0
+description "Interface in trunk mode connection to R-2 e2/3"
+switchport trunk encapsulation dot1q
+switchport mode trunk
+
+end
+
+write memory
+
+
+SW-3
+
+enable
+configure terminal
+hostname SW-3
+
+vlan 20
+name OPE-VLAN-RED
+vlan 10
+name OPE-VlaN-BLUE
+
+do show vlan brief
+
+exit
+
+interface eo/1
+description "Interface in VLAN 10 connection to VPC-15"
+switchport mode access
+switchport access vlan 10
+
+interface eo/2
+description "Interface in VLAN 20 connection to VPC-16"
+switchport mode access
+switchport access vlan 20
+
+interface eo/3
+description "Interface in VLAN 10 connection to VPC-17"
+switchport mode access
+switchport access vlan 10
+
+interface eo/0
+description "Interface in trunk mode connection to R-3 e2/1"
+switchport trunk encapsulation dot1q
+switchport mode trunk
+
+end
+
+write memory
+
+
+###### Router 1 (R-1) Configuration #######
+
+R-1
+
+enable
+configure terminal
+hostname R-1
+
+###### interface e1/0 configuration #######
+
+interface e1/0
+description "Connection to R-4 e1/0"
+ip address 192.168.0.2 255.255.255.252
+no shutdown
+
+interface e2/0
+description "Connection to R-5 e2/0"
+ip address 10.0.0.2 255.255.255.252
+no shutdown
+
+exit
+
+interface e2/3.20
+description "Interface IP address for VLAN 20 IKY-RED"
+encapsulation dot1Q 20
+ip address 192.168.2.1 255.255.255.0
+
+exit
+
+###### interface e2/2 and subinterface configuration #######
+
+interface e2/2
+description "Connection to R-3 e2/2"
+no shutdown
+
+interface e2/2.10
+description "Interface IP address for VLAN 10 IKY-BLUE R-2 <=> OPB-BLUE R-3"
+encapsulation dot1Q 10
+ip address 10.0.23.1 255.255.255.0
+
+exit
+
+interface e2/2.20
+description "Interface IP address for VLAN 20 IKY-RED R-2 <=> OPE-RED R-3"
+encapsulation dot1Q 20
+ip address 192.168.23.1 255.255.255.0
+
+exit
+
+###### interface e2/0 and subinterface configuration #######
+
+interface e2/0
+description "Connection to R-1 e1/1"
+no shutdown
+
+interface e2/0.10
+description "Interface IP address for VLAN 10 R-2 <=>  R-1 e1/1.10"
+encapsulation dot1Q 10
+ip address 10.0.12.2 255.255.255.0
+
+exit
+
+interface e2/0.20
+description "Interface IP address for VLAN 20 R-2 <=> R-1 e1/1.20"
+encapsulation dot1Q 20
+ip address 192.168.12.2 255.255.255.0
+
+exit
+
+
+
+
+###### Router 2 (R-2) Configuration #######
+
+R-2
+
+enable
+configure terminal
+hostname R-2
+interface e2/1
+description "Connection to SW-1 e0/0"
+no shutdown
+
+interface e2/1.10
+description "Interface IP address for VLAN 10 LGL-BLUE"
+encapsulation dot1Q 10
+ip address 10.0.1.1 255.255.255.0
+
+exit
+
+interface e2/1.20
+description "Interface IP address for VLAN 20 LGL-RED"
+encapsulation dot1Q 20
+ip address 192.168.1.1 255.255.255.0
+
+exit
+
+###### interface e2/3 and subinterface configuration #######
+
+interface e2/3
+description "Connection to SW-2 e0/0"
+no shutdown
+
+interface e2/3.10
+description "Interface IP address for VLAN 10 IKY-BLUE"
+encapsulation dot1Q 10
+ip address 10.0.2.1 255.255.255.0
+
+exit
+
+interface e2/3.20
+description "Interface IP address for VLAN 20 IKY-RED"
+encapsulation dot1Q 20
+ip address 192.168.2.1 255.255.255.0
+
+exit
+
+###### interface e2/2 and subinterface configuration #######
+
+interface e2/2
+description "Connection to R-3 e2/2"
+no shutdown
+
+interface e2/2.10
+description "Interface IP address for VLAN 10 IKY-BLUE R-2 <=> OPB-BLUE R-3"
+encapsulation dot1Q 10
+ip address 10.0.23.1 255.255.255.0
+
+exit
+
+interface e2/2.20
+description "Interface IP address for VLAN 20 IKY-RED R-2 <=> OPE-RED R-3"
+encapsulation dot1Q 20
+ip address 192.168.23.1 255.255.255.0
+
+exit
+
+###### interface e2/0 and subinterface configuration #######
+
+interface e2/0
+description "Connection to R-1 e1/1"
+no shutdown
+
+interface e2/0.10
+description "Interface IP address for VLAN 10 R-2 <=>  R-1 e1/1.10"
+encapsulation dot1Q 10
+ip address 10.0.12.2 255.255.255.0
+
+exit
+
+interface e2/0.20
+description "Interface IP address for VLAN 20 R-2 <=> R-1 e1/1.20"
+encapsulation dot1Q 20
+ip address 192.168.12.2 255.255.255.0
+
+exit
+
+
+###### Router 3 (R-3) Configuration #######
+
+R-3
+
+enable
+configure terminal
+hostname R-3
+interface e2/1
+description "Connection to SW-3 e0/0"
+no shutdown
+
+interface e2/1.10
+description "Interface IP address for VLAN 10 OPE-BLUE"
+encapsulation dot1Q 10
+ip address 10.0.3.1 255.255.255.0
+
+exit
+
+interface e2/1.20
+description "Interface IP address for VLAN 20 OPE-RED"
+encapsulation dot1Q 20
+ip address 192.168.3.1 255.255.255.0
+
+exit
+
+###### interface e2/2 and subinterface configuration #######
+
+interface e2/2
+description "Connection to R-2 e2/2"
+no shutdown
+
+interface e2/2.10
+description "Interface IP address for VLAN 10 R-3 <=> R-2 e2/2.10"
+encapsulation dot1Q 10
+ip address 10.0.23.2 255.255.255.0
+
+exit
+
+interface e2/2.20
+description "Interface IP address for VLAN 20 R-2 <=> R-3 e2/2.20"
+encapsulation dot1Q 20
+ip address 192.168.23.2 255.255.255.0
+
+exit
+
+###### interface e2/0 and subinterface configuration #######
+
+interface e2/0
+description "Connection to R-1 e1/2"
+no shutdown
+
+interface e2/0.10
+description "Interface IP address for VLAN 10 R-3 <=>  R-1 e1/2.10"
+encapsulation dot1Q 10
+ip address 10.0.13.2 255.255.255.0
+
+exit
+
+interface e2/0.20
+description "Interface IP address for VLAN 20 R-3 <=> R-1 e1/2.20"
+encapsulation dot1Q 20
+ip address 192.168.13.2 255.255.255.0
+
+exit
+
+
+

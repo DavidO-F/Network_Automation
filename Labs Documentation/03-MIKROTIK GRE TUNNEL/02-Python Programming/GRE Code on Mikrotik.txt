@@ -1,0 +1,160 @@
+How to configure GRE Tunnel between two sites or location
+For instance: How to configure a GRE Tunnel between an Head office or Head Quater and Branch Office
+For Instance: How to configure a GRE Tunnel between a Bank (Head office or Data Center) and a Branch office or ATM remote site
+
+Required Device for the Lab
+Using the following
+1. Router | Mikrotik | 4 routers | RouterOS v7
+2. Switch | Cisco | 2 | L2-Adverterprisem-15 |
+3. EVE NG Topology:
+	Title: GRE TUNNEL FOR BANK HQ AND BRANCH
+	Author: David O. Folorunsho
+	Date: 06/10/2023
+
+
+
+Mikrotk1-Configuration
+
+"/system identity set name=GTCO-HQ-MKT"
+
+"/ip/route add gateway=172.16.1.2 check-gateway=ping dst-address=0.0.0.0/0 comment='Internet Route'"
+
+"/ip/address add address=192.168.2.1/24 interface=ether1 comment='HQ LAN interface Gateway IP Address'"
+
+/ping 192.168.2.1
+/ping 192.168.2.2
+
+"/ip/address add address=172.16.1.1/30 interface=ether3 comment='HQ WAN interface IP Address""
+
+print
+/ping 172.16.1.1
+/ping 172.16.1.2
+
+"/interface/gre add name=HQ-GRE-Interface local-address=172.16.1.1 remote-address=172.16.1.10 comment='GRE logical connection to Branch'"
+
+"/ip/address add add=192.168.10.2/30 int=HQ-GRE-Interface comm='GRE Interface IP Address'"
+
+"/ip/route add dst=192.168.1.0/24 gat=192.168.10.1 com='GRE route' check-gateway=ping"
+
+
+Mikrotik 4 Configurations
+
+system identity set name=GTCO-BH-MKT
+"/ip/address add address=192.168.1.1/24 interface=ether1 comment='Branch LAN Interface Gateway IP Address'"
+
+/ping 192.168.1.1
+/ping 192.168.1.2
+
+"/ip/address add address=172.16.1.10/30 interface=ether2 comment='Branch WAN Interface IP Address'"
+
+print
+/ping 192.168.1.10
+/ping 192.168.1.9
+
+"/ip/route add gateway=172.16.1.9 check-gateway=ping dst-address=0.0.0.0/0 comment='Internet Route'"
+
+print
+
+"/interface/gre add name=BH-GRE-Interface local-address=172.16.1.10 remote-address=172.16.1.1 comment='GRE logical connection to HQ'"
+
+"/ip/address add address=192.168.10.1/30 interface=BH-GRE-Interface comment='GRE Interface IP Address'"
+
+
+"/ip/route add dst=192.168.2.0/24 gat=192.168.10.2 check-gateway=ping com='GRE route'"
+
+
+
+Mikrotik 2
+"/system identity set name=Ligali-PE"
+
+"/ip/address add address=172.16.1.2/30 interface=ether2 comment='Connection to GTCO-HQ-MKT'"
+
+"/ip/address add address=172.16.1.5/30 interface=ether1 comment='Connection to IKOYI-PE'"
+/ping 172.16.1.2
+/ping 172.16.1.5
+/ping 172.16.1.9
+
+"/ip/route add dst-address=0.0.0.0/0 gateway=172.16.1.6 check-gateway=ping comment='Default route to any destination'"
+
+print
+/ping 172.16.1.2
+/ping 172.16.1.1
+/ping 172.16.1.5
+/ping 172.16.1.6
+
+Mikrotik 3
+
+"/system identity set name=IKOYI-PE"
+
+"/ip address add address=172.16.1.6/30 interface=ether1 comment='Connection to LIGALI-PE'"
+
+"/ip address add address=172.16.1.9/30 interface=ether2 comment='Connection to OPEBI-PE'"
+
+print
+
+"/ip/route add dst-address=0.0.0.0/0 gateway=172.16.1.5 check-gateway=ping comment='Default route to any destination'"
+
+
+
+
+Mikrotik Router Interface Connection
+Mikrotik1(GTCO-HQ_MKT) to Mikrotik2(Ligali-PE)
+ether3                <=>            ether2
+
+
+Mikrotik2(Ligali-PE) to Mikrotik3(IKOYI-PE)
+ether2             <=>           ether1
+
+
+Mikrotik3(IKOYI-PE) to Mikrotik4(GTCO-BH-MKT)
+ether2               <=>            ether2
+
+
+Mikrotik4(GTCO-BH-MKT) to SW-11(N/A)
+ether1 <=> e0/0
+
+Mikrotik4(GTCO-HQ-MKT) to SW-9(N/A)
+ether1 <=> e0/1
+
+
+VPC to SW-9
+
+VPC to SW-11
+
+Verification and Testing
+Ping command
+on VPCs
+1. Ping from VPC-17 to VPC-19; to LAN Gateway of VPC-19 : ping 192.168.1.2; ping 192.168.1.1
+2. Ping from VPC-19 to VPC-17; to LAN Gateway of VPC-17 : ping 192.168.2.2; ping 192.168.2.1
+
+
+Trace command
+on VPCs
+1. Traceroute from VPC-17 to VPC-19; to LAN Gateway of VPC-19 : trace 192.168.1.2; trace 192.168.1.1
+2. Traceroute from VPC-19 to VPC-17; to LAN Gateway of VPC-17 : trace 192.168.2.2; trace 192.168.2.1
+
+expected result traceroute IP for the above topology and configuration
+1. For the Traceroute from VPC-17 to VPC-19 : trace 192.168.1.2; trace 192.168.1.1
+
+SRC-ADDRESS: 192.168.2.2 => 192.168.2.1 => 192.168.10.1 => 192.168.1.2
+
+VPC-17> trace 192.168.1.2
+trace to 192.168.1.2, 8 hops max, press Ctrl+C to stop
+ 1   192.168.2.1   8.542 ms  6.376 ms  5.530 ms
+ 2   192.168.10.1   11.964 ms  5.968 ms  5.100 ms
+ 3   *192.168.1.2   7.714 ms (ICMP type:3, code:3, Destination port unreachable)
+
+2. For the Traceroute from VPC-17 to LAN Gateway of VPC-19 : trace 192.168.1.1
+
+
+C. Time value for the ping and trace route show be very minimal
+why: because the number of hub will be logically short
+
+D. Number of hub show by trace route between source IP (at one site) and the destination IP (at the second site) will be 2 hops
+
+
+Furthermore:
+1. Use python to automate the mikrotik router configurations
+2. Use python to configure the 4 Mikrotik router using on the necessary parameters like: interface, IP address, Subnet, Router Identity, GRE interface name etc
+
+

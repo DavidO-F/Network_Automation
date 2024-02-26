@@ -1,0 +1,33 @@
+Route Failover for Mikrotik Routers
+John Maxwell W0VG and Willem Schreüder AC0KQ
+Failover on Mikrotik Routers is super simple. If you have two routes to the internet, you can make one the primary, and if it goes down fail over to the secondary.
+
+Simple Failover
+In this example, let the primary (or preferred) gateway be 10.0.1.1 and the secondary (backup) gateway 10.0.2.1. The routing is set using the commands
+/ip route
+add gateway=10.0.1.1 distance=1 check-gateway=ping  comment=Primary
+add gateway=10.0.2.1 distance=2                     comment=Secondary
+By omitting dst-address, this sets the default route, or 0.0.0.0/0.
+This works because the distance to 10.0.1.1 is 1 and the distance to 10.0.2.1 is 2, so as long as you can ping 10.0.1.1 the primary will be used as the distance is shorter. If you cannot ping 10.0.1.1, this route will become unavailable and the default route will become 10.0.2.1. Once 10.0.1.1 starts to answers pings, the primary route will be used again.
+
+Recursive Failover
+The problem with the simple method is that it only pings the neighboring router. It assumes that as long as the router can be reached, the route is up. If one of the devices beyond the neighboring router is down the simple method does not detect it.
+The solution is to use a recursive route. The recursive route uses a remote target to validate the entire path. A popular target is the Google DNS server 8.8.8.8. It is important to select a target that is very reliable, because when the target does not answer pings, the route will be marked as unavailable.
+
+The recursive route is set using the commands
+
+/ip route
+add dst-address=8.8.8.8/32 gateway=10.0.1.1 scope=10 comment="Validate Primary"
+add gateway=8.8.8.8  distance=1 check-gateway=ping   comment=Primary
+add gateway=10.0.2.1 distance=2                      comment=Secondary
+The first line sets the path to the Google DNS server 8.8.8.8/32 via the 10.0.1.1 primary gateway. This establishes the gateway for this route. The scope=10 sets the scope equal to the target-scope (which defaults to 10) so that the router will only use this gateway to reach 8.8.8.8.
+The second line sets the primary default route to be the same as the route to 8.8.8.8. The distance 1 makes it the primary route. The route will be checked by pinging 8.8.8.8. This is the recursive route, because it derives its gateway and status from something other than the neighboring router. The absence of dst-address implies that this is the default route.
+
+The third line is the secondary route and is unchanged from the simple method.
+
+When 8.8.8.8 does not answer pings, the primary route will be marked as down, and the secondary route will be used. The router will continue to try and ping 8.8.8.8 on the primary gateway and when it starts answering pings again, the primary route will again be used.
+
+Limitations
+Whatever IP you use as your target is only reachable via the primary route. If the primary route is down, that IP address will be unreachable. If you use 8.8.8.8 to resolve DNS, the DNS service will be down when the primary route is down. Therefore if you use Google for DNS and use 8.8.8.8 as the routing target, you should use a different Google DNS server such as 8.8.4.4 for DNS instead.
+Performance
+When the primary route goes down, it takes around 30 seconds for the router to decide that the pings are lost and the target is unreachable, and switch to the secondary route. Once pings are again answered from the primary route, the router will immediately switch back to the primary route, so the switch back to the primary happens in a few seconds.

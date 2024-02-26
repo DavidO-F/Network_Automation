@@ -1,0 +1,81 @@
+05-Basic OSPF Configuration
+
+Mikrotik 1
+
+/system identity set name=MK-1
+
+/interface/bridge add name=loopback comment="Loopback interface for MK-1"
+
+/ip/address add address=192.168.10.1/24 interface=ether4 comment="Connection to the LAN"
+/ip/address add address=10.10.12.1/30 interface=ether2 comment="Connection to the MK-2"
+/ip/address add address=10.10.13.1/30 interface=ether3 comment="Connection to the MK-3"
+/ip/address add address=1.1.1.1/32 interface=loopback comment="Loopback Interface IP Adderess"
+
+
+/routing/id add name=OSPF_ID id=1.1.1.1 comment=OSPF-ID disabled=no
+/routing/ospf/instance add router-id=OSPF_ID name=OSPF-Instance-1 originate-default=always comment=OSPF-Instant
+/routing/ospf/area add name=Backbone comment="Backbone Area" instance=OSPF-Instance-1
+
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether2 networks=10.10.12.0/30 comment="Advertise ether 1 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether3 networks=10.10.13.0/30 comment="Advertise ether 3 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether4 networks=192.168.10.0/24 comment="Advertise ether 4 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone passive interfaces=loopback networks=1.1.1.1/32 comment="Advertise loopback network"
+
+
+Mikrotik 2
+
+/system identity set name=MK-2
+/interface/bridge add name=loopback comment="Loopback interface for MK-2"
+/ip/address add address=192.168.20.1/24 interface=ether3 comment="Connection to the LAN"
+/ip/address add address=10.10.12.2/30 interface=ether2 comment="Connection to the MK-1"
+/ip/address add address=10.10.23.1/30 interface=ether4 comment="Connection to the MK-3"
+/ip/address add address=2.2.2.2/32 interface=loopback comment="Loopback Interface IP Adderess"
+/routing/id add name=OSPF_ID id=2.2.2.2 comment="Router ID" disabled=no
+/routing/ospf/instance add router-id=OSPF_ID name=OSPF-Instance-2 originate-default=always comment="OSPF Instant"
+/routing/ospf/area add name=Backbone comment="Backbone Area" instance=OSPF-Instance-2
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether2 networks=10.10.12.0/30 comment="Advertise ether 2 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether4 networks=10.10.23.0/30 comment="Advertise ether 4 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether3 networks=192.168.20.0/24 comment="Advertise ether 3 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone passive interfaces=loopback networks=2.2.2.2/32 comment="Advertise loopback network"
+
+
+
+Mikrotik 2
+
+/system identity set name=MK-3
+/interface/bridge add name=loopback comment="Loopback interface for MK-3"
+/ip/address add address=192.168.30.1/24 interface=ether2 comment="Connection to the LAN"
+/ip/address add address=10.10.13.2/30 interface=ether3 comment="Connection to the MK-1"
+/ip/address add address=10.10.23.2/30 interface=ether4 comment="Connection to the MK-2"
+/ip/address add address=3.3.3.3/32 interface=loopback comment="Loopback Interface IP Adderess"
+/routing/id add name=OSPF_ID id=3.3.3.3 comment="Router ID" disabled=no
+/routing/ospf/instance add router-id=OSPF_ID name=OSPF-Instance-3 originate-default=always comment="OSPF Instant"
+/routing/ospf/area add name=Backbone comment="Backbone Area" instance=OSPF-Instance-3
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether3 networks=10.10.13.0/30 comment="Advertise ether 3 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether4 networks=10.10.23.0/30 comment="Advertise ether 4 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone type=ptp interfaces=ether2 networks=192.168.30.0/24 comment="Advertise ether 3 network"
+/routing/ospf/interface-template add auth=md5 auth-key=54321 area=Backbone passive interfaces=loopback networks=3.3.3.3/32 comment="Advertise loopback network"
+
+
+
+
+
+
+
+  MMM      MMM       KKK                          TTTTTTTTTTT      KKK
+  MMMM    MMMM       KKK                          TTTTTTTTTTT      KKK
+  MMM MMMM MMM  III  KKK  KKK  RRRRRR     OOOOOO      TTT     III  KKK  KKK
+  MMM  MM  MMM  III  KKKKK     RRR  RRR  OOO  OOO     TTT     III  KKKKK
+  MMM      MMM  III  KKK KKK   RRRRRR    OOO  OOO     TTT     III  KKK KKK
+  MMM      MMM  III  KKK  KKK  RRR  RRR   OOOOOO      TTT     III  KKK  KKK
+
+
+
+
+
+
+kkkkkkkkk         
+kkkkkkkkkkk
+kkkkkkkkkkk      kkkk kkkk
+kkkkkkkkkkk     kkkk   kkkk
+kkkkkkkkkk     kkkk     kkkk

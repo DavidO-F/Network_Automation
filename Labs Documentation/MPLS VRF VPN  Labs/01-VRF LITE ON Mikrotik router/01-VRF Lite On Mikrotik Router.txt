@@ -1,0 +1,102 @@
+01-VRF Lite On Mikrotik Router
+
+
+MRK-1
+/system identity set name=MRK-1
+/interface/bridge  add name=loopback1 comment="Bridge Interface for loopback1 IP Address"
+/interface/bridge  add name=loopback2 comment="Bridge Interface for loopback2 IP Address"
+/ip/address add add=192.168.13.3/24 int=ether1 com="Interface IP Address for Connection to the MRK-2"
+/ip/address add add=192.168.23.3/24 int=ether2 com="Interface IP Address for Connection to the MRK-3"
+/ip/address add add=192.168.35.3/24 int=ether3 com="Interface IP Address for Connection to the MRK-5"
+/ip/address add add=192.168.34.3/24 int=ether4 com="Interface IP Address for Connection to the MRK-4"
+/ip/address add add=10.10.10.10/32 int=loopback1 com="IP Address for loopback Interface"
+/ip/address add add=20.20.20.20/32 int=loopback2 com="IP Address for loopback Interface"
+
+/ip route name=Blue-VRF interfaces=ether1,ether2,loopback1 comment="BLue Customer"
+/ip route name=Red-VRF interfaces=ether3,ether4,loopback2 comment="Red Customer"
+
+/routing/id add name=Router_ID_Blue id=10.10.10.10 comment="ID for Blue Customers" disabled=no 
+/routing/id add name=Router_ID_Red id=20.20.20.20 comment="ID for Red Customers" disabled=no 
+
+/routing/ospf/instance add router-id=Router_ID_Blue vrf=Blue-VRF name=OSPF-Blue-Instance originate-default=always comment="Blue Customer Instance"
+/routing/ospf/instance add router-id=Router_ID_Red vrf=Red-VRF name=OSPF-Red-Instance originate-default=always comment="Red Customer Instance"
+
+/routing/ospf/area add name=Blue-Area area-id=0.0.0.0 comment="Backbone Area For Blue Customers" instance=OSPF-Blue-Instance type=default
+/routing/ospf/area add name=Red-Area area-id=0.0.0.0 comment="Backbone Area For Red Customers" instance=OSPF-Red-Instance type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=ptp interfaces=ether1 comment="Advertise ether 1 interface on Blue-VRF"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=ptp interfaces=ether2 comment="Advertise ether 2 interface on Blue-VRF"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=broadcast interfaces=loopback1 passive comment="Advertise loopback1 interface on Blue-VRF"
+
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=ptp interfaces=ether3 comment="Advertise ether 3 interface on Red-VRF"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=ptp interfaces=ether4 comment="Advertise ether 4 interface on Red-VRF"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=broadcast interfaces=loopback2 passive comment="Advertise loopback2 interface on Red-VRF"
+
+
+
+MRK-2
+/system identity set name=MRK-2
+/interface/bridge  add name=loopback1 comment="Bridge Interface for loopback1 IP Address"
+/ip/address add add=192.168.13.1/24 int=ether1 com="Interface IP Address for Connection to the MRK-1"
+/ip/address add add=1.1.1.1/24 int=ether2 com="Interface IP Address for Connection to the VPC6"
+/ip/address add add=11.11.11.11/32 int=loopback1 com="IP Address for loopback Interface"
+
+
+/routing/id add name=Router_ID_1Blue id=11.11.11.11 comment="ID for 1 Blue Customer" disabled=no  
+/routing/ospf/instance add router-id=Router_ID_1Blue name=OSPF-Blue-Instance originate-default=always comment="Blue Customer Instance"
+/routing/ospf/area add name=Blue-Area area-id=0.0.0.0 comment="For 1 Blue Customers" instance=OSPF-Blue-Instance type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=ptp interfaces=ether1 comment="Advertise ether 1 interface to the Blue-VRF with MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface to the Blue-VRF with MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=broadcast interfaces=loopback1 passive comment="Advertise loopback1 interface to the Blue-VRF with MK-1"
+
+
+
+
+MRK-3
+/system identity set name=MRK-3
+/interface/bridge  add name=loopback1 comment="Bridge Interface for loopback1 IP Address"
+/ip/address add add=192.168.23.2/24 int=ether1 com="Interface IP Address for Connection to the MRK-1"
+/ip/address add add=2.2.2.2/24 int=ether2 com="Interface IP Address for Connection to the VPC7"
+/ip/address add add=12.12.12.12/32 int=loopback1 com="IP Address for loopback Interface"
+
+/routing/id add name=Router_ID_2Blue id=12.12.12.12 comment="ID for 2 Blue Customer" disabled=no  
+/routing/ospf/instance add router-id=Router_ID_2Blue name=OSPF-Blue-Instance originate-default=always comment="Blue Customer Instance"
+/routing/ospf/area add name=Blue-Area area-id=0.0.0.0 comment="For 2 Blue Customers" instance=OSPF-Blue-Instance type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=ptp interfaces=ether1 comment="Advertise ether 1 interface to the Blue-VRF with MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface to the Blue-VRF with MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=123 area=Blue-Area  type=broadcast interfaces=loopback1 passive comment="Advertise loopback1 interface to the Blue-VRF with MK-1"
+
+
+MRK-4
+/system identity set name=MRK-4
+/interface/bridge  add name=loopback1 comment="Bridge Interface for loopback1 IP Address"
+/ip/address add add=192.168.34.4/24 int=ether1 com="Interface IP Address for Connection to the MRK-1"
+/ip/address add add=4.4.4.4/24 int=ether2 com="Interface IP Address for Connection to the VPC8"
+/ip/address add add=21.21.21.21/32 int=loopback1 com="IP Address for loopback Interface"
+
+/routing/id add name=Router_ID_1Red id=21.21.21.21 comment="ID for 1 Red Customer" disabled=no  
+/routing/ospf/instance add router-id=Router_ID_1Red name=OSPF-Red-Instance originate-default=always comment="Red Customer Instance"
+/routing/ospf/area add name=Red-Area area-id=0.0.0.0 comment="For 1 Red Customers" instance=OSPF-Red-Instance type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=ptp interfaces=ether1 comment="Advertise ether 1 interface to the Red-VRF on MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface to the Red-VRF on MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=broadcast interfaces=loopback1 passive comment="Advertise loopback1 interface to the Red-VRF on MK-1"
+
+
+
+MRK-5
+/system identity set name=MRK-5
+/interface/bridge  add name=loopback1 comment="Bridge Interface for loopback1 IP Address"
+/ip/address add add=192.168.35.5/24 int=ether1 com="Interface IP Address for Connection to the MRK-1"
+/ip/address add add=5.5.5.5/24 int=ether2 com="Interface IP Address for Connection to the VPC9"
+/ip/address add add=22.22.22.22/32 int=loopback1 com="IP Address for loopback Interface"
+
+/routing/id add name=Router_ID_2Red id=22.22.22.22 comment="ID for 2 Red Customer" disabled=no  
+/routing/ospf/instance add router-id=Router_ID_2Red name=OSPF-Red-Instance originate-default=always comment="Red Customer Instance"
+/routing/ospf/area add name=Red-Area area-id=0.0.0.0 comment="For 2 Red Customers" instance=OSPF-Red-Instance type=default
+
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=ptp interfaces=ether1 comment="Advertise ether 1 interface to the Red-VRF on MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=broadcast interfaces=ether2 passive comment="Advertise ether 2 interface to the Red-VRF on MK-1"
+/routing/ospf/interface-template add auth=md5 auth-key=321 area=Red-Area  type=broadcast interfaces=loopback1 passive comment="Advertise loopback1 interface to the Red-VRF on MK-1"

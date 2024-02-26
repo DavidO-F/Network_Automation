@@ -1,0 +1,49 @@
+Topic: ROSv7 – BGP Basic Configuration – eBGP Peering to Advertise Subnets
+Date: 09/10/2023
+
+Order of Operations (As they apply to this example only)
+Here are the Order of Operations:
+
+1) Add all link IP address to their respective interfaces
+
+2) Create the BGP Connection
+
+3) Add the network to the Address List
+
+4) Ensure a route is installed in the Main Routing Table
+
+5) Test
+
+Configs
+
+Upstream Router
+/system identity
+set name=”Upstream Router”
+/ip address
+add address=1.50.50.1/30 interface=ether1 network=1.50.50.0 comment="Assigned IP Address"
+/routing bgp connection
+add as=64512 connect=yes disabled=no listen=yes local.role=ebgp name=Peering_to_BGP-GW-Router remote.address=1.50.50.2/32 .as=64513
+
+
+BGP Gateway Router
+/system identity
+set name=BGP_Gateway_Router
+/ip address
+add address=1.50.50.2/30 interface=ether2 network=1.50.50.0 comment="Assigned IP Address"
+add address=123.123.123.1/24 interface=ether3 network=123.123.123.0 comment="Assigned IP Address"
+/ip firewall address-list
+add address=123.123.123.0/24 list=BGP_Upstream_Output_Network comment="Addition of Autonomous Network Address to BGP GW Router Firewall Address List"
+/ip route
+add disabled=no distance=1 dst-address=0.0.0.0/0 gateway=1.50.50.1 pref-src=”” routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/routing bgp connection
+add as=64513 connect=yes disabled=no listen=yes local.role=ebgp name=Peering_to_Upstream-Router output.network=BGP_Upstream_Output_Network \
+remote.address=1.50.50.1/32 .as=64512
+
+
+Downstream Router
+/system identity
+set name=”Downstream Router”
+/ip address
+add address=123.123.123.2/24 interface=ether3 network=123.123.123.0 comment="Assigned IP Address"
+/ip route
+add disabled=no dst-address=0.0.0.0/0 gateway=123.123.123.1 routing-table=main suppress-hw-offload=no comment="Route to BGP Gateway Router"

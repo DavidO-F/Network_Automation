@@ -1,0 +1,165 @@
+
+Site to Site VPN Configgure With GRE Over IPSec OSPF
+
+With Three (3) Routers
+
+#########################################################
+Router (R-1) Configuration
+#########################################################
+
+enable
+configure terminal
+hostname ISP
+interface e1/0
+ip address 101.1.1.1 255.255.255.0
+description "Interface IP Address Connection to SITE-A e1/0"
+no shutdown
+exit
+interface e1/1
+ip address 102.1.1.1 255.255.255.0
+description "Interface IP Address Connection to SITE-B e1/0"
+no shutdown
+end
+write
+
+ping 101.1.1.1
+ping 101.1.1.100
+ping 102.1.1.1
+ping 102.1.1.100
+
+
+#########################################################
+Router (R-2) Configuration
+#########################################################
+
+enable
+configure terminal
+hostname SITE-A
+interface e1/0
+ip address 101.1.1.100 255.255.255.0
+description "Interface IP Address Connection to ISP/R-1 e1/0"
+no shutdown
+exit
+interface e1/1
+ip address 192.168.101.1 255.255.255.0
+description "Interface IP Address Connection to LAN"
+no shutdown
+end
+
+write
+
+ping 101.1.1.100
+ping 101.1.1.1
+ping 192.168.101.1
+
+configure termianl
+ip route 0.0.0.0 0.0.0.0 101.1.1.1
+
+interface tunnel 0
+description "Interface IP Address Connection to SITE-B Tu0"
+ip address 172.16.1.1 255.255.255.252
+end
+
+
+#########################################################
+Router (R-3) Configuration
+#########################################################
+
+enable
+configure terminal
+hostname SITE-B
+interface e1/0
+ip address 102.1.1.100 255.255.255.0
+description "Interface IP Address Connection to ISP/R-1 e1/1"
+no shutdown
+exit
+interface e1/1
+ip address 192.168.102.1 255.255.255.0
+description "Interface IP Address Connection to LAN"
+no shutdown
+end 
+write
+
+ping 102.1.1.100
+ping 102.1.1.1
+ping 192.168.102.1
+
+
+configure termianl
+ip route 101.1.1.0 255.255.255.0 102.1.1.1
+end
+write
+
+ping 101.1.1.1
+ping 101.1.1.100
+
+configure terminal
+interface tunnel 0
+description "Interface IP Address Connection to SITE-A Tu0"
+ip address 172.16.1.2 255.255.255.252
+end
+
+
+
+
+#########################################################
+IPSec Configuration for R-2
+#########################################################
+crypto isakmp policy 1
+ encr aes 
+ authentication pre-share
+ group 5  
+ lifetime 1800
+crypto isakmp key DTT123 address 102.1.1.100    
+!         
+!         
+crypto ipsec transform-set T-SET esp-aes esp-sha-hmac 
+ mode tunnel
+!         
+crypto ipsec profile DTT123
+ set transform-set T-SET 
+!                
+!         
+interface Tunnel0
+ tunnel protection ipsec profile DTT123
+
+
+
+show run | sec crypto
+
+show crypto isakmp sa
+
+
+
+#########################################################
+IPSec Configuration for R-3
+#########################################################
+crypto isakmp policy 1
+ encr aes 
+ authentication pre-share
+ group 5  
+ lifetime 1800
+crypto isakmp key DTT123 address 101.1.1.100    
+!         
+!         
+crypto ipsec transform-set T-SET esp-aes esp-sha-hmac 
+ mode tunnel
+!         
+crypto ipsec profile DTT123
+ set transform-set T-SET 
+!                
+!         
+interface Tunnel0
+ tunnel protection ipsec profile DTT123
+
+
+show run | sec crypto
+
+show crypto isakmp sa
+
+show crypto ipsec sa
+
+ping 192.168.101.1 source 192.168.102.1 repeat 100
+
+show crypto engine conn active
+

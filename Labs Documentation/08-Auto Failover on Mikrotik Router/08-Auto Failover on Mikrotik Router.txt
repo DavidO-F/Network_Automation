@@ -1,0 +1,108 @@
+Auto Failover on Mikrotik Router
+
+Virtual Personal Computer (VPC) Configuration
+
+VPC-8 Configuration
+
+set pcname VPC-8
+ip 192.168.0.2/24 192.168.0.1
+save
+
+
+VPC-9 Configuration
+
+set pcname VPC-9
+ip 192.168.0.3/24 192.168.0.1
+save
+
+
+Mikrotik Router Configuration 
+Basic Configuration
+1. Set device Name
+2. Enable ROMON Feature
+3. Configure Interface IP Address
+4. Configure NATing
+5. Configure static Route to the Nethop router
+
+Mikrotik-1 Configuratio
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.0.1/24 comment="Interface IP Address Connection to SW-1 e0/0" interface=ether4 network=192.168.0.0
+/ip address add address=192.168.1.2/24 comment="Interface IP Address Connection to Mikrotik-1 ether1" interface=ether2 network=192.168.1.0
+/ip address add address=192.168.2.2/24 comment="Interface IP Address Connection to Mikrotik-3 ether1" interface=ether3 network=192.168.2.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether4 to ether3 For Internet Acess or Nethop Router" out-interface=ether3 src-address=192.168.0.0/24
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether4 to ether2 For Internet Acess or Nethop Router" out-interface=ether2 src-address=192.168.0.0/24
+/ip route add check-gateway=ping disabled=no distance=1 dst-address=0.0.0.0/0 gateway=1.1.1.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=32
+/ip route add check-gateway=ping disabled=no distance=5 dst-address=0.0.0.0/0 gateway=192.168.1.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add disabled=no dst-address=1.1.1.1/32 gateway=192.168.2.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=31
+/ip route add disabled=no distance=1 dst-address=8.8.8.8/32 gateway=192.168.2.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=31
+/ip route add check-gateway=ping disabled=no distance=2 dst-address=0.0.0.0/0 gateway=8.8.8.8 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=32
+/system identity set name=Mikrotik-1
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+Mikrotik-2 Configuratio
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.3.2/24 comment="Interface IP Address Connection to Mikrotik-4 ether2" interface=ether2 network=192.168.3.0
+/ip address add address=192.168.1.1/24 comment="Interface IP Address Connection to Mikrotik-1 ether2" interface=ether1 network=192.168.1.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether1 to ether2 For Internet Acess or Nethop Router" out-interface=ether2 src-address=192.168.1.0/24
+/ip route add check-gateway=ping comment="Static Route to the Nethop for Internet Access" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.3.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/system identity set name=Mikrotik-2
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+Mikrotik-3 Configuration
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.2.1/24 comment="Interface IP Address Connection to Mikrotik-1 ether3" interface=ether1 network=192.168.2.0
+/ip address add address=192.168.4.2/24 comment="Interface IP Address Connection to Mikrotik-5 ether2" interface=ether2 network=192.168.4.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat out-interface=ether2 src-address=192.168.2.0/24
+/ip route add comment="Static Route to the Nethop for Internet Access" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.4.1 routing-table=main suppress-hw-offload=no
+/system identity set name=Mikrotik-3
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+
+Mikrotik-4 Configuration
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.5.2/24 comment="Interface IP Address Connection to Mikrotik-6 ether2" interface=ether1 network=192.168.5.0
+/ip address add address=192.168.3.1/24 comment="Interface IP Address Connection to Mikrotik-2 ether2" interface=ether2 network=192.168.3.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether2 to ether1" out-interface=ether1 src-address=192.168.3.0/24
+/ip route add check-gateway=ping comment="Static Route to the Nethop for Internet Access" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.5.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/system identity set name=Mikrotik-4
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+
+
+Mikrotik-5 Configuration
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.4.1/24 comment="Interface IP Address Connection to Mikrotik-3 ether2" interface=ether2 network=192.168.4.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether2 to ether1" out-interface=ether1 src-address=192.168.4.0/24
+/system identity set name=Mikrotik-5
+/system note set show-at-login=no
+/tool romon set enabled=yes
+
+
+Mikrotik-6 Configuration
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=192.168.5.1/24 comment="Interface IP Address Connection to Mikrotik-4 ether1" interface=ether2 network=192.168.5.0
+/ip dhcp-client add interface=ether1
+/ip firewall nat add action=masquerade chain=srcnat comment="Nating of Network IP Address on ether2 to ether1" src-address=192.168.5.0/24
+/system identity set name=Mikrotik-6
+/system note set show-at-login=no
+/tool romon set enabled=yes

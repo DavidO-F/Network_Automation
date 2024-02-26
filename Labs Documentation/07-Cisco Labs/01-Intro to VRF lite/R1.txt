@@ -1,0 +1,73 @@
+hostname R1
+!
+ip cef
+!
+ip vrf BLUE
+ description Trusted Traffic
+!
+ip vrf RED
+ description Guest Traffic
+!
+interface FastEthernet1/0
+ description RX
+ ip vrf forwarding RED
+ ip address 192.168.0.2 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface FastEthernet1/1
+ description FW
+ ip vrf forwarding BLUE
+ ip address 10.0.0.2 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface FastEthernet2/0
+ description R2
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet2/0.10
+ encapsulation dot1Q 10
+ ip vrf forwarding BLUE
+ ip address 10.0.12.1 255.255.255.252
+!
+interface FastEthernet2/0.20
+ encapsulation dot1Q 20
+ ip vrf forwarding RED
+ ip address 192.168.12.1 255.255.255.252
+!
+interface FastEthernet2/1
+ description R3
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet2/1.10
+ encapsulation dot1Q 10
+ ip vrf forwarding BLUE
+ ip address 10.0.13.1 255.255.255.252
+!
+interface FastEthernet2/1.20
+ encapsulation dot1Q 20
+ ip vrf forwarding RED
+ ip address 192.168.13.1 255.255.255.252
+!
+router ospf 1 vrf BLUE
+ router-id 0.0.1.1
+ log-adjacency-changes
+ network 10.0.0.0 0.0.255.255 area 0
+ default-information originate
+!
+router ospf 2 vrf RED
+ router-id 0.0.1.2
+ log-adjacency-changes
+ redistribute static metric 10 subnets
+ network 192.168.0.0 0.0.255.255 area 0
+ default-information originate
+!
+ip route vrf BLUE 0.0.0.0 0.0.0.0 10.0.0.1
+ip route vrf RED 0.0.0.0 0.0.0.0 192.168.0.1
+!
+end

@@ -1,0 +1,206 @@
+How to Configure EIGRP Routing protocol In Cisco Router
+
+1. Select Componenet on EVE NG
+2. Arrange the component
+3. Connect the component
+4. Label the topology
+5. Configure each component
+
+All VPC Configurations
+#########################################################
+VPC-7
+set pcname VPC-7
+ip 192.168.1.1/24 192.168.1.100
+save
+
+#########################################################
+VPC-8
+set pcname VPC-8
+ip 192.168.1.2/24 192.168.1.100
+save
+
+#########################################################
+VPC-9
+set pcname VPC-9
+ip 192.168.2.1/24 192.168.2.100
+save
+#########################################################
+VPC-10
+set pcname VPC-10
+ip 192.168.2.2/24 192.168.2.100
+save
+
+#########################################################
+VPC-11
+set pcname VPC-11
+ip 192.168.3.1/24 192.168.3.100
+save
+
+#########################################################
+VPC-12
+set pcname VPC-12
+ip 192.168.3.1/24 192.168.3.100
+save
+#########################################################
+
+
+#########################################################
+Verification of Configuration
+
+show ip
+
+Check reachability: Check reachability to all IP enabled Interfaces
+Possible ping from VPC-7
+#########################################################
+ping 192.168.1.1
+ping 192.168.1.100
+ping 10.0.0.1
+ping 10.0.0.2
+ping 192.168.2.100
+ping 192.168.2.1
+ping 192.168.2.2
+ping 11.0.0.1
+ping 11.0.0.2
+ping 192.168.3.100
+ping 192.168.3.1
+ping 192.168.3.2 
+#########################################################
+
+
+
+All Routers Configuration
+
+Phase 1 configuration
+Router (R-1)
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-1
+
+interface f1/0
+description "Interface IP Address Connection to R-2 Fa1/0"
+ip address 10.0.0.1 255.0.0.0
+no shutdown
+exit
+
+interface f0/0
+description Interface "IP Address Connection to R-2 Fa0/0"
+ip address 192.168.1.100 255.255.255.0
+no shutdown
+exit
+end
+write
+#########################################################
+
+Phase 2 configuration
+Router (R-1)
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 10.0.0.0
+network 192.168.1.0
+end
+write
+#########################################################
+
+
+Router (R-2)
+Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-2
+
+interface f1/0
+description "Interface IP Address Connection to R-1 Fa1/0"
+ip address 10.0.0.2 255.0.0.0
+no shutdown
+exit
+
+interface f2/0
+description "Interface IP Address Connection to R-3 Fa1/0"
+ip address 11.0.0.1 255.0.0.0
+no shutdown
+exit
+
+interface f0/0
+description Interface "IP Address Connection to SW-5 e0/0"
+ip address 192.168.2.100 255.255.255.0
+no shutdown
+exit
+end
+write
+#########################################################
+
+Router (R-2)
+Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 10.0.0.0
+network 11.0.0.0
+network 192.168.2.0
+end
+write
+#########################################################
+
+
+Router 3 (R-3)
+Phase 1 configuration
+#########################################################
+enable
+configure terminal
+line console 0
+logging synchronous
+exit
+
+hostname R-3
+
+interface f1/0
+description "Interface IP Address Connection to R-2 Fa2/0"
+ip address 11.0.0.2 255.0.0.0
+no shutdown
+exit
+
+interface f0/0
+description Interface "IP Address Connection to SW-5 e0/0"
+ip address 192.168.3.100 255.255.255.0
+no shutdown
+exit
+end
+write
+#########################################################
+
+Router (R-3)
+Phase 2 configuration
+#########################################################
+enable
+configure terminal
+router eigrp 100
+network 11.0.0.0
+network 192.168.3.0
+end
+write
+#########################################################
+
+Verification and Check for Router Configuration
+
+Phase 1 Configuration Check
+1. Check the interface IP Address assigned.
+2. Check the interface description
+3. Check interface up status
+
+#########################################################
+show ip interface brief
+show interface description
+show ip interface brief | in up 

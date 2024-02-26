@@ -1,0 +1,12 @@
+﻿# 2024-01-11 22:18:33 by RouterOS 7.11.2
+# software id = 
+#
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
+/port set 0 name=serial0
+/ip address add address=172.16.100.1/30 comment="Interface to Branch Router" interface=ether2 network=172.16.100.0
+/ip address add address=172.16.1.1/30 comment="Interface to HQ Router" interface=ether1 network=172.16.1.0
+/ip dhcp-client add interface=ether1
+/ip route add check-gateway=ping comment="Route to Branch LAN" disabled=yes dst-address=10.10.10.0/24 gateway=172.16.100.2
+/ip route add check-gateway=ping comment="Route to HQ LAN" disabled=yes dst-address=192.168.1.0/24 gateway=172.16.1.2
+/system identity set name=Int-RT
+/system note set show-at-login=no

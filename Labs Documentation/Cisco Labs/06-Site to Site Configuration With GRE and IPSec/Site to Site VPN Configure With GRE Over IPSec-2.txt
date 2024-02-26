@@ -1,0 +1,366 @@
+
+Site to Site VPN Configgure With GRE Over IPSec OSPF
+
+With Four (4) Routers
+
+#########################################################
+Router (R-1) Configuration
+#########################################################
+
+enable
+configure terminal
+hostname ISP-1
+interface e1/0
+ip address 10.1.1.1 255.255.255.252
+description "Interface IP Address Connection to ISP-2 e1/0"
+no shutdown
+exit
+interface e1/1
+description "Interface IP Address Connection to SITE-A e1/0"
+ip address 102.1.1.1 255.255.255.0
+no shutdown
+end
+write
+
+ping 10.1.1.1
+ping 10.1.1.2
+ping 102.1.1.1
+ping 102.1.1.100
+
+show ip interface brief
+show ip interface brief | include up
+show interface description
+show ip interface e1/0
+show ip interface e1/1
+
+
+#########################################################
+Router (R-2) Configuration
+#########################################################
+
+enable
+configure terminal
+hostname ISP-2
+interface e1/0
+ip address 10.1.1.2 255.255.255.252
+description "Interface IP Address Connection to ISP-1 e1/0"
+no shutdown
+exit
+interface e1/1
+description "Interface IP Address Connection to SITE-B e1/0"
+ip address 101.1.1.1 255.255.255.0
+no shutdown
+end
+write
+
+ping 10.1.1.1
+ping 10.1.1.2
+ping 101.1.1.1
+ping 102.1.1.100
+
+show ip interface brief
+show ip interface brief | include up
+show interface description
+show ip interface e1/0
+show ip interface e1/1
+
+
+#########################################################
+Router (R-3) SITE-A Configuration
+#########################################################
+
+enable
+configure terminal
+hostname SITE-A
+interface e1/0
+ip address 102.1.1.100 255.255.255.0
+description "Interface IP Address Connection to ISP-1 e1/1"
+no shutdown
+exit
+interface e1/1
+ip address 192.168.102.1 255.255.255.0
+description "Interface IP Address Connection to VPC-2"
+no shutdown
+end
+write
+
+ping 102.1.1.100
+ping 102.1.1.1
+ping 192.168.102.1
+ping 192.168.102.100
+
+show ip interface brief
+show ip interface brief | include up
+show interface description | include up
+show ip interface e1/0
+show ip interface e1/1
+
+
+#########################################################
+Router (R-3) Route Configuration
+#########################################################
+
+configure termianl
+ip route 0.0.0.0 0.0.0.0 102.1.1.1
+
+
+#########################################################
+Router (R-3) Tunnel and OSPF Configuration
+#########################################################
+
+interface tunnel 0
+description "Interface IP Address Connection to SITE-B Tu0"
+ip address 172.16.1.1 255.255.255.252
+tunnel source 102.1.1.100
+tunnel destination 101.1.1.100
+tunnel mode gre ip
+ip ospf 10 area 0
+
+exit
+
+interface e1/1
+ip ospf 10 area 0
+end
+write
+
+
+#########################################################
+IPSec Configuration for R-3 (SITE-A)
+#########################################################
+crypto isakmp policy 20
+ encryption aes 
+ authentication pre-share
+ group 14
+ hash md5
+ lifetime 86400
+ exit
+
+crypto isakmp key DTT123 address 101.1.1.100    
+!         
+!         
+crypto ipsec transform-set T-SET-DTT esp-aes esp-md5-hmac 
+ mode tunnel
+ exit
+!         
+crypto ipsec profile DTT123-profile
+ description IPSec profile between SITE-A and SITE-B
+ set transform-set T-SET-DTT
+ exit 
+!                
+!         
+interface Tunnel0
+ tunnel protection ipsec profile DTT123-profile
+
+
+
+show run | sec crypto
+
+show crypto isakmp sa
+
+
+#########################################################
+Router (R-4) Configuration (SITE-B)
+#########################################################
+
+enable
+configure terminal
+hostname SITE-B
+
+interface e1/0
+ ip address 101.1.1.100 255.255.255.0
+ description "Interface IP Address Connection to ISP-2 e1/1"
+ no shutdown
+ exit
+
+interface e1/1
+ ip address 192.168.101.1 255.255.255.0
+ description "Interface IP Address Connection to VPC-1"
+ no shutdown
+ end 
+write
+
+#########################################################
+Verification of Phase 1
+#########################################################
+
+show ip interface brief
+show ip interface brief | include up
+show interface description | include up
+show ip interface e1/0
+show ip interface e1/1
+
+ping 101.1.1.100
+ping 101.1.1.1
+ping 192.168.101.1
+ping 192.168.101.100
+
+
+#########################################################
+Router (R-4) SITE-B Route Configuration
+#########################################################
+
+configure termianl
+ip route 0.0.0.0 0.0.0.0 101.1.1.1
+end
+write
+
+
+ping 101.1.1.1
+ping 101.1.1.100
+
+
+#########################################################
+Router (R-4) Tunnel and OSFP Configuration
+#########################################################
+
+configure terminal
+interface tunnel 0
+description "Interface IP Address Connection to SITE-A Tu0"
+ip address 172.16.1.2 255.255.255.252
+tunnel source 101.1.1.100
+tunnel destination 102.1.1.100
+tunnel mode gre ip
+ip ospf 10 area 0
+
+exit
+
+interface e1/1
+ip ospf 10 area 0
+end
+write
+
+#########################################################
+IPSec Configuration for R-4 (SITE-B)
+#########################################################
+crypto isakmp policy 20
+ encryption aes 
+ authentication pre-share
+ group 14
+ hash md5
+ lifetime 86400
+ exit
+
+crypto isakmp key DTT123 address 102.1.1.100    
+!         
+!         
+crypto ipsec transform-set T-SET-DTT esp-aes esp-md5-hmac 
+ mode tunnel
+ exit
+!         
+crypto ipsec profile DTT123-profile
+ description IPSec profile between SITE-B and SITE-A
+ set transform-set T-SET-DTT
+ exit 
+!                
+! 
+
+#########################################################
+Verification Crypto Isakmp, IPSec for R-4 (SITE-B)
+#########################################################
+
+show crypto ipsec profile DTT123-profile
+show crypto ipsec transform-set T-SET-DTT
+
+show crypto isakmp key
+show crypto isakmp policy
+
+#########################################################
+Apply Crypto IPsec to Tunnel interface of R-4 (SITE-B)
+#########################################################
+        
+interface Tunnel0
+ tunnel protection ipsec profile DTT123-profile
+
+
+
+#########################################################
+Router (R-4) SITE-B Verification of IPSec Configuration
+#########################################################
+
+show crypto isakmp peer 102.1.1.100
+
+show run | sec crypto
+
+show crypto isakmp sa
+
+show crypto ipsec sa
+
+ping 192.168.101.1 source 192.168.102.1 repeat 100
+
+show crypto engine connection active
+
+
+
+#########################################################
+Virtual PC (VPC-1) Configuration
+#########################################################
+set pcname VPC-1
+ip 192.168.101.100/24 192.168.101.1
+save
+
+
+Verfication
+
+show ip
+ping 192.168.101.100
+ping 192.168.101.1
+ping 101.1.1.100
+ping 101.1.1.1
+
+
+
+
+#########################################################
+Virtual PC (VPC-2) Configuration
+#########################################################
+set pcname VPC-2
+ip 192.168.102.100/24 192.168.102.1
+save
+
+
+Verfication
+
+show ip
+ping 192.168.102.100
+ping 192.168.102.1
+ping 102.1.1.100
+ping 102.1.1.1
+
+
+
+OTHER PART ON THE SAME TOPOLOGY
+
+Instead of using static routing between the ISP (ISP-1 and ISP-2 router) network,
+a dynamic routing can be used. To use dynamic routing, remove the static router,
+as show below and use eigrp.
+
+ISP-1 
+
+static route
+ip route 101.1.1.0 255.255.255.0 10.1.1.2
+
+Dynamic Route EIGRP
+
+router eigrp 100
+ network 102.1.1.0
+ network 10.1.1.0
+
+Dynamic Route OSPF
+interface e1/0, e1/1
+ ip ospf 100 area 0
+
+
+ISP-2
+
+ip route 102.1.1.0 255.255.255.0 10.1.1.1
+
+
+router eigrp 100
+ network 101.1.1.0
+ network 10.1.1.0
+
+
+Dynamic Route OSPF
+interface e1/0, e1/1
+ ip ospf 100 area 0
+

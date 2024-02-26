@@ -1,0 +1,147 @@
+
+
+
+
+DHCP Configuration on Mikrotik Router for Small Office
+
+Mikrotik (Cloud Hosted Router)
+/interface/vlan add name=VLAN-100-IT vlan-id=100 interface=ether1 comment="Gateway for VLAN 100"  
+/interface/vlan add name=VLAN-101-SALES vlan-id=101 interface=ether1 comment="Gateway for VLAN 101"     
+/interface/vlan add name=VLAN-102-ACCOUNT vlan-id=102 interface=ether1 comment="Gateway for VLAN 102"           
+/interface/vlan print
+
+/ip/address add address=192.168.100.1/24 interface=VLAN-100-IT comment="Gateway IP Address for VLAN 100"
+/ip/address add address=192.168.101.1/24 interface=VLAN-101-SALES comment="Gateway IP Address for VLAN 101"
+/ip/address add address=192.168.102.1/24 interface=VLAN-102-ACCOUNT comment="Gateway IP Address for VLAN 102"
+/ip/address print
+
+/ping 192.168.100.1
+/ping 192.168.101.1
+/ping 192.168.102.1
+
+/ip/pool add name=IP_Pool_101 ranges=192.168.100.2-192.168.100.254 comment="IP Pool for IT-VLAN-100"
+/ip/pool add name=IP_Pool_101 ranges=192.168.101.2-192.168.101.254 comment="IP Pool for SALES-VLAN-101"
+/ip/pool add name=IP_Pool_101 ranges=192.168.102.2-192.168.102.254 comment="IP Pool for ACCOUNT-VLAN-102"
+/ip/pool print
+
+/ip/dhcp-server add address-pool=IP_Pool_100 comment="DHCP Server for IT-VLAN-100" interface=VLAN-100-IT name=IT_VLAN_100_SERVER server-address=192.168.100.1
+/ip/dhcp-server add address-pool=IP_Pool_101 comment="DHCP Server for SALES-VLAN-101" interface=VLAN-101-SALES name=SALES_VLAN_101_SERVER server-address=192.168.101.1
+/ip/dhcp-server add address-pool=IP_Pool_102 comment="DHCP Server for ACCOUNT-VLAN-102" interface=VLAN-102-ACCOUNT name=ACCOUNT_VLAN_102_SERVER server-address=192.168.102.1
+/ip/dhcp-server print
+
+/ip/dhcp-server/network add address=192.168.100.0/24 comment="Network Setup for IT-VLAN-100" dns-server=8.8.8.8 gateway=192.168.100.1
+/ip/dhcp-server/network add address=192.168.101.0/24 comment="Network Setup for SALES-VLAN-101" dns-server=8.8.8.8 gateway=192.168.101.1
+/ip/dhcp-server/network add address=192.168.102.0/24 comment="Network Setup for ACOUNT-VLAN-102" dns-server=8.8.8.8 gateway=192.168.102.1
+/ip/dhcp-server/network print
+
+
+
+Switch Configuration (L2-Adevertise)
+
+enable
+config terminal
+hostname SW
+vlan 100                  
+name VLAN-100-IT
+vlan 101
+name VLAN-101-SALES
+vlan 102
+name VLAN-102-ACCOUNT
+exit
+exit
+
+show vlan
+
+
+config ter
+int range e0/1, e0/2      
+switchport access vlan 100
+exit
+int range e0/3, e1/0      
+switchport access vlan 101
+exi
+int range e1/1, e1/2      
+switchport access vlan 102
+exi                       
+exit
+Switch#
+show vlan
+
+config ter
+int e0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+end
+show int tr
+write
+
+
+
+Configuration on Virtual Private Computer (VPC)
+
+VPC3
+set pcname VPC3
+ip dhcp -d
+save
+
+
+VPC4
+set pcname VPC4
+ip dhcp -d
+save
+
+
+VPC5
+set pcname VPC5
+ip dhcp -d
+save
+
+
+VPC6
+set pcname VPC6
+ip dhcp -d
+save
+
+
+VPC7
+set pcname VPC7
+ip dhcp -d
+save
+
+VPC8
+set pcname VPC8
+ip dhcp -d
+save
+
+
+
+
+General Verification Commands
+
+Verification command on Switch (SW)
+
+1. show mac address-table
+2. show mac address-table vlan 100
+3. show vlan
+4. show interface trunk
+5. show ip int brief
+6. show run
+
+Verification commands on Mikrotik
+
+1. /ip address print
+2. /interface print
+3. /ip pool pr
+4. /ip dhcp-server pr
+5. /ip dhcp-server network pr
+6. /ip dhcp-server lease pr
+
+Verification commands on VPCs
+
+show ip
+ping 192.168.100.1
+ping 192.168.101.1
+ping 192.168.102.1
+
+
+
